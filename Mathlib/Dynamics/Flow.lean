@@ -168,4 +168,47 @@ def toHomeomorph (t : τ) : (α ≃ₜ α) where
 theorem image_eq_preimage (t : τ) (s : Set α) : ϕ t '' s = ϕ (-t) ⁻¹' s :=
   (ϕ.toHomeomorph t).toEquiv.image_eq_preimage s
 
+def positive_semiorbit [Preorder τ] (ϕ : Flow τ α) (x : α) : Set α :=
+{y | ∃ t : τ,  t ≥ 0 ∧ ϕ t x = y}
+
+def negative_semiorbit [Preorder τ] (ϕ : Flow τ α) (x : α) : Set α :=
+{y | ∃ t : τ, t < 0 ∧ ϕ t x = y}
+
+def orbit (ϕ : Flow τ α) (x : α) : Set α :=
+{y | ∃ t : τ, ϕ t x = y}
+
+structure Semiconjugacy {β : Type*} [TopologicalSpace β]
+(π : ContinuousMap α β) (ϕ : Flow τ α) (ξ : Flow τ β) : Prop where
+  surj : Function.Surjective π
+  semiconj : ∀ t x , π ( ϕ t x) =  (ξ t) (π x)
+
+def IsTopologicallyTransitive (ϕ : Flow τ α) : Prop :=
+  ∃ x : α, Dense (ϕ.orbit x)
+
+theorem IsTopologicallyTransitive.of_semiconjugacy {β : Type*} [TopologicalSpace β]
+(π : ContinuousMap α β) (ϕ : Flow τ α)
+(ξ : Flow τ β) (hπ : Semiconjugacy π ϕ ξ)
+(hϕ : IsTopologicallyTransitive ϕ) : IsTopologicallyTransitive ξ := by
+  unfold IsTopologicallyTransitive at hϕ
+  obtain ⟨ x, hx ⟩ := hϕ
+  unfold IsTopologicallyTransitive
+  use π x
+  rw [dense_iff_inter_open] at hx ⊢
+  intro U hUo hUn
+  have hUop := hUo.preimage π.continuous_toFun
+  specialize hx (π.toFun ⁻¹' U)
+  specialize hx hUop
+  have hinvUne := Set.Nonempty.preimage hUn hπ.1
+  apply hx at hinvUne
+  obtain ⟨z,hz⟩ := hinvUne
+  obtain ⟨h1, h2 ⟩ := hz
+  rw[Set.mem_preimage] at h1
+  obtain ⟨t,htxz⟩ := h2
+  have h3 := DFunLike.congr_arg π htxz
+  rw [hπ.2] at h3
+  have : ∃ s : τ, ξ s (π x) = π z := by use t
+  have h4 : π z ∈ ξ.orbit (π x) := by congr
+  have hIntne : (U ∩ ξ.orbit (π x)).Nonempty := ⟨π z, ⟨h1, h4⟩⟩
+  congr
+
 end Flow
