@@ -182,6 +182,9 @@ structure Semiconjugacy {β : Type*} [TopologicalSpace β]
   surj : Function.Surjective π
   semiconj : ∀ t x , π ( ϕ t x) =  (ξ t) (π x)
 
+def IsFactorOf {β : Type*} [TopologicalSpace β] (ξ : Flow τ β) (ϕ : Flow τ α) : Prop :=
+  ∃ π : ContinuousMap α β, Semiconjugacy π ϕ ξ
+
 def IsTopologicallyTransitive (ϕ : Flow τ α) : Prop :=
   ∃ x : α, Dense (ϕ.orbit x)
 
