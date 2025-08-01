@@ -139,6 +139,7 @@ namespace Flow
 
 variable {τ : Type*} [AddCommGroup τ] [TopologicalSpace τ] [IsTopologicalAddGroup τ]
   {α : Type*} [TopologicalSpace α] (ϕ : Flow τ α)
+  {β : Type*} [TopologicalSpace β] (ξ : Flow τ β)
 
 theorem isInvariant_iff_image_eq (s : Set α) : IsInvariant ϕ s ↔ ∀ t, ϕ t '' s = s :=
   (isInvariant_iff_image _ _).trans
@@ -168,34 +169,31 @@ def toHomeomorph (t : τ) : (α ≃ₜ α) where
 theorem image_eq_preimage (t : τ) (s : Set α) : ϕ t '' s = ϕ (-t) ⁻¹' s :=
   (ϕ.toHomeomorph t).toEquiv.image_eq_preimage s
 
-def positive_semiorbit [Preorder τ] (ϕ : Flow τ α) (x : α) : Set α :=
-{y | ∃ t : τ,  t ≥ 0 ∧ ϕ t x = y}
-
-def negative_semiorbit [Preorder τ] (ϕ : Flow τ α) (x : α) : Set α :=
-{y | ∃ t : τ, t < 0 ∧ ϕ t x = y}
+variable {ϕ ξ}
 
 def orbit (ϕ : Flow τ α) (x : α) : Set α :=
 {y | ∃ t : τ, ϕ t x = y}
 
-structure Semiconjugacy {β : Type*} [TopologicalSpace β]
-(π : ContinuousMap α β) (ϕ : Flow τ α) (ξ : Flow τ β) : Prop where
+structure Semiconjugacy (π : ContinuousMap α β) (ϕ : Flow τ α) (ξ : Flow τ β) : Prop where
   surj : Function.Surjective π
   semiconj : ∀ t x , π ( ϕ t x) =  (ξ t) (π x)
 
-def IsFactorOf {β : Type*} [TopologicalSpace β] (ξ : Flow τ β) (ϕ : Flow τ α) : Prop :=
+def IsFactorOf (ξ : Flow τ β) (ϕ : Flow τ α) : Prop :=
   ∃ π : ContinuousMap α β, Semiconjugacy π ϕ ξ
 
 def IsTopologicallyTransitive (ϕ : Flow τ α) : Prop :=
   ∃ x : α, Dense (ϕ.orbit x)
 
-theorem IsTopologicallyTransitive.of_factor {β : Type*} [TopologicalSpace β]
-(π : ContinuousMap α β) (ϕ : Flow τ α)
-(ξ : Flow τ β) (hπ : Semiconjugacy π ϕ ξ)
-(hϕ : IsTopologicallyTransitive ϕ) : IsTopologicallyTransitive ξ := by
+theorem IsTopologicallyTransitive.of_factor
+    {π : ContinuousMap α β} (hπ : Semiconjugacy π ϕ ξ)
+    (hϕ : IsTopologicallyTransitive ϕ) : IsTopologicallyTransitive ξ := by
   obtain ⟨x, hx⟩ := hϕ
-  refine ⟨π x, (dense_iff_inter_open).mpr (fun U hUo hUn => ?_)⟩
-  obtain ⟨_, hzU, t, htxz⟩ := (dense_iff_inter_open).1 hx (π ⁻¹' U)
+  refine ⟨π x, dense_iff_inter_open.mpr (fun U hUo hUn => ?_)⟩
+  obtain ⟨_, hzU, t, htxz⟩ := dense_iff_inter_open.mp hx (π ⁻¹' U)
     (hUo.preimage π.continuous_toFun) (Set.Nonempty.preimage hUn hπ.surj)
   exact ⟨ξ t (π x), by rwa [← hπ.semiconj t x, congrArg π htxz], ⟨t, rfl⟩⟩
+
+lemma IsTopologicallyTransitive.of_isFactorOf (hπ : ξ.IsFactorOf ϕ)
+    (hϕ : IsTopologicallyTransitive ϕ) : IsTopologicallyTransitive ξ := hϕ.of_factor hπ.choose_spec
 
 end Flow
