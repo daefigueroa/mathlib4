@@ -88,7 +88,6 @@ namespace Flow
 
 variable {τ : Type*} [AddMonoid τ] [TopologicalSpace τ] [ContinuousAdd τ]
   {α : Type*} [TopologicalSpace α] (ϕ : Flow τ α)
-  {β : Type*} [TopologicalSpace β] (ψ : Flow τ β)
 
 instance : Inhabited (Flow τ α) :=
   ⟨{  toFun := fun _ x => x
@@ -205,7 +204,8 @@ theorem mem_orbit_of_mem_fwOrbit {x y : α} (h : x ∈ (ϕ.fwOrbit y)) : x ∈ �
 
 end Orbit
 
-variable {γ : Type*} [TopologicalSpace γ] (χ : Flow τ γ)
+variable {β : Type*} [TopologicalSpace β] (ψ : Flow τ β)
+  {γ : Type*} [TopologicalSpace γ] (χ : Flow τ γ)
 
 namespace ContinuousMap
 
