@@ -190,7 +190,7 @@ def fw : Flow (AddSubmonoid.nonneg τ) α := ϕ.restrictAddSubmonoid (AddSubmono
 def fwOrbit (x : α) : Set α := orbit ϕ.fw x
 
 @[simp]
-theorem fwOrbit_eq_nonneg_range (x : α) :
+theorem forwardOrbit_eq_range_nonneg (x : α) :
     fwOrbit ϕ x = Set.range (fun t : {t : τ // 0 ≤ t} => ϕ t x) := rfl
 
 /-- The forward orbit of a point under a flow `ϕ` is forward invariant under `ϕ`. -/
