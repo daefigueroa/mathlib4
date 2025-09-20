@@ -70,8 +70,13 @@ variable (M G : Type*) {α : Type*} [Monoid M] [Group G] [TopologicalSpace α] [
 open subset of `α` is dense in `α`. -/
 @[to_additive]
 theorem isTopologicallyTransitive_iff_dense_iUnion_smul_of_isOpen_nonempty :
-    IsTopologicallyTransitive M α ↔ ∀ {U : Set α}, IsOpen U → U.Nonempty → Dense (⋃ m : M, m • U) :=
-  sorry
+    IsTopologicallyTransitive M α ↔
+    ∀ {U : Set α}, IsOpen U → U.Nonempty → Dense (⋃ m : M, m • U) := by
+  constructor
+  simp [dense_iff_inter_open]
+  refine (fun h U hoU hneU V hoV hneV ↦ ?_)
+  #check (h.nonempty_inter hoU hoV hneU hneV)
+  simp [h.nonempty_inter hoU hoV hneU hneV]
 
 /-- A monoid action on `α` is topologically transitive if and only if every proper closed invariant
 subset of `α` has empty interior. -/
@@ -88,12 +93,16 @@ theorem MulAction.IsPointTransitive.IsTopologicallyTransitive [h : ∀ x : α, N
     IsPointTransitive M α → IsTopologicallyTransitive M α :=
   sorry
 
-/-- If `α` is separable and a Baire space, then any topologically transitive monoid action on `α` is
+/-- If `α` is a separable Baire space, then any topologically transitive monoid action on `α` is
 point transitive. -/
 @[to_additive]
 theorem MulAction.IsTopologicallyTransitive.IsPointTransitive_smul [SeparableSpace α]
     [BaireSpace α] : IsTopologicallyTransitive M α → IsPointTransitive M α :=
   sorry
+
+/-- A point transitive group action is topologically transitive -/
+@[to_additive]
+theorem thmname2_smul : IsPointTransitive G α → IsTopologicallyTransitive G α := sorry
 
 @[to_additive]
 theorem MulAction.mem_transitivePoints_iff (x : α) :
