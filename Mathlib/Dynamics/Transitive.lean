@@ -61,8 +61,38 @@ class MulAction.IsTopologicallyTransitive (M α : Type*) [Monoid M] [Topological
 
 open MulAction Set
 
-variable (M G : Type*) {α : Type*} [Monoid M] [Group G] [TopologicalSpace α] [MulAction M α]
+section
+
+variable (M G : Type*) {α : Type*} [Monoid M] [Group G] [MulAction M α]
   [MulAction G α]
+
+@[to_additive]
+theorem MulAction.thmname2 {s : Set α} :
+  ((⋃ m : M, (fun x : α => m • x) '' s) ⊆ s) ↔
+  ((⋃ m : M, (fun x : α => m • x) ⁻¹' sᶜ) ⊆ sᶜ) := by
+  classical
+  constructor
+  · intro hs
+    have hs'  : ∀ m : M, (fun x : α => m • x) '' s ⊆ s :=
+      (iUnion_subset_iff).1 hs
+    have hs'' : ∀ m : M, s ⊆ (fun x : α => m • x) ⁻¹' s :=
+      fun m => (image_subset_iff).1 (hs' m)
+    have hs''' : ∀ m : M, (fun x : α => m • x) ⁻¹' sᶜ ⊆ sᶜ := by
+      intro m
+      simpa [Set.preimage_compl, subset_compl_comm] using (hs'' m)
+    exact (iUnion_subset_iff).2 hs'''
+  · intro h
+    have h₁ : ∀ m : M, (fun x : α => m • x) ⁻¹' sᶜ ⊆ sᶜ :=
+      (iUnion_subset_iff).1 h
+    have h₂ : ∀ m : M, s ⊆ (fun x : α => m • x) ⁻¹' s := by
+      intro m
+      simpa [Set.preimage_compl, subset_compl_comm] using (h₁ m)
+    have h₃ : ∀ m : M, (fun x : α => m • x) '' s ⊆ s :=
+      fun m => (image_subset_iff).2 (h₂ m)
+    exact (iUnion_subset_iff).2 h₃
+
+
+variable [TopologicalSpace α]
 
 section IsPointTransitive
 
@@ -150,31 +180,6 @@ IsTopologicallyTransitive M α := by
     simp [IsOpen.iUnion_preimage_smul M hVo hVne]
   rcases mem_iUnion.mp (hu') with ⟨m, hm⟩
   exact ⟨m, ⟨m • u, ⟨⟨u, hu, rfl⟩, hm⟩⟩⟩
-
-@[to_additive]
-theorem MulAction.thmname2 {s : Set α} :
-  ((⋃ m : M, (fun x : α => m • x) '' s) ⊆ s) ↔
-  ((⋃ m : M, (fun x : α => m • x) ⁻¹' sᶜ) ⊆ sᶜ) := by
-  classical
-  constructor
-  · intro hs
-    have hs'  : ∀ m : M, (fun x : α => m • x) '' s ⊆ s :=
-      (iUnion_subset_iff).1 hs
-    have hs'' : ∀ m : M, s ⊆ (fun x : α => m • x) ⁻¹' s :=
-      fun m => (image_subset_iff).1 (hs' m)
-    have hs''' : ∀ m : M, (fun x : α => m • x) ⁻¹' sᶜ ⊆ sᶜ := by
-      intro m
-      simpa [Set.preimage_compl, subset_compl_comm] using (hs'' m)
-    exact (iUnion_subset_iff).2 hs'''
-  · intro h
-    have h₁ : ∀ m : M, (fun x : α => m • x) ⁻¹' sᶜ ⊆ sᶜ :=
-      (iUnion_subset_iff).1 h
-    have h₂ : ∀ m : M, s ⊆ (fun x : α => m • x) ⁻¹' s := by
-      intro m
-      simpa [Set.preimage_compl, subset_compl_comm] using (h₁ m)
-    have h₃ : ∀ m : M, (fun x : α => m • x) '' s ⊆ s :=
-      fun m => (image_subset_iff).2 (h₂ m)
-    exact (iUnion_subset_iff).2 h₃
 
 @[to_additive]
 theorem MulAction.exists_nonempty_inter [IsTopologicallyTransitive M α] {U V : Set α}
@@ -322,25 +327,6 @@ theorem MulAction.IsTopologicallyTransitive.IsPointTransitive_smul₁ [Nonempty 
     have h₂ : s.Nonempty := s.nonempty_iff_ne_empty.2 (ne_of_mem_of_not_mem hs hbne)
     refine (IsOpen.dense_iUnion_preimage_smul M) h₂ (hbb.isOpen hs)
 
--- [h : ∀ x : α, NeBot (𝓝[≠] x)]
-
-/-- If `M` is countable and `α` is a T1 space with no isolated points, then a continuous point
-transitive monoid action on `α` by `M` is topologically transitive. -/
-@[to_additive]
-theorem MulAction.IsPointTransitive.IsTopologicallyTransitive [Preorder M]
-    [CanonicallyOrderedMul M] [LocallyFiniteOrder M] [T1Space α] [PerfectSpace α] :
-    IsPointTransitive M α → IsTopologicallyTransitive M α := by
-  intro h
-  obtain ⟨x, hx⟩ := h.exists_dense_orbit
-  refine ⟨fun {U V} hUo hVo hUne hVne ↦ ?_⟩
-  have hUx := dense_iff_inter_open.mp hx _ hUo hUne
-  obtain ⟨y, hyU, hyo⟩ := hUx
-  obtain ⟨a, ha⟩  := mem_orbit_iff.1 hyo
-  let I : Set M := Finset.Icc 1 a
-  -- have g : IsClosed ((fun m ↦ m • x) '' I) := by simp
-  -- let g : IsClosed I := by simp
-  sorry
-
 /-- A point transitive group action is topologically transitive -/
 @[to_additive]
 theorem instIsPointTransitive_of_group_smul [IsPointTransitive G α] :
@@ -348,4 +334,61 @@ theorem instIsPointTransitive_of_group_smul [IsPointTransitive G α] :
   constructor
   intro U V hUo hVo hUne hVne
   have h := exists_dense_orbit G (α := α)
-  sorry
+  obtain ⟨x, hx⟩ := h
+  have hUx := dense_iff_inter_open.mp hx _ hUo hUne
+  have hVx := dense_iff_inter_open.mp hx _ hVo hVne
+  obtain ⟨y, hyU, hyo⟩ := hUx
+  obtain ⟨z, hzV, hzo⟩ := hVx
+  obtain ⟨a, ha⟩  := mem_orbit_iff.1 hyo
+  obtain ⟨b, hb⟩  := mem_orbit_iff.1 hzo
+  use (b / a)
+  use z
+  constructor
+  · refine mem_smul_set.mpr ?_
+    use y
+    constructor
+    · assumption
+    · simpa [← ha, div_mul_cancel, ← mul_smul]
+  · assumption
+
+end
+
+variable (M : Type*) {α : Type*} [TopologicalSpace α]
+
+/-- If `α` is a T1 space with no isolated points, then a point transitive monoid action on `α` by
+`M` is topologically transitive. -/
+@[to_additive]
+theorem MulAction.IsPointTransitive.IsTopologicallyTransitive [CommMonoid M] [MulAction M α]
+[LinearOrder M] [CanonicallyOrderedMul M] [LocallyFiniteOrderBot M] [T1Space α] [PerfectSpace α] :
+    IsPointTransitive M α → IsTopologicallyTransitive M α := by
+  intro h
+  obtain ⟨x, hx⟩ := h.exists_dense_orbit
+  refine ⟨fun {U V} hUo hVo hUne hVne ↦ ?_⟩
+  have hUx := dense_iff_inter_open.mp hx _ hUo hUne
+  obtain ⟨y, hyU, hyo⟩ := hUx
+  obtain ⟨a, ha⟩  := mem_orbit_iff.1 hyo
+  let I := Finset.Iic a
+  have g :=  I.finite_toSet
+  let f : M → α := fun i ↦ i • x
+  have gf := Set.Finite.image f g
+  have hcl := isClosed_biUnion_finset (s := I) (f := fun i ↦ {f i})
+  simp only [finite_singleton, Finite.isClosed, implies_true, forall_const] at hcl
+  have ho : IsOpen (V \ (⋃ i ∈ I, {f i})) := by simp [IsOpen.sdiff hVo]
+  have hg := infinite_of_mem_nhds (s := V)
+  obtain ⟨v,hv⟩ := hVne
+  have hvx := hg v (IsOpen.mem_nhds hVo hv)
+  have hdne := (Set.Infinite.diff hvx gf).nonempty
+  have hdo : IsOpen (V \ (f ''I.toSet)) := by simp [image_eq_iUnion, ho]
+  have hVi := dense_iff_inter_open.1 hx (V \ f '' ↑I) hdo hdne
+  obtain ⟨z, ⟨⟨hzv, hzi⟩, b, hzb⟩⟩ := hVi
+  simp_all only [Finset.finite_toSet, implies_true, mem_image, Finset.mem_coe, not_exists]
+  have hbn := hzi b
+  simp only [not_and, imp_not_comm] at hbn
+  have hbni := hbn hzb
+  simp only [Finset.mem_Iic, not_le, I] at hbni
+  obtain ⟨c, hc⟩ := le_iff_exists_mul.1 hbni.le
+  use c
+  use (c * a) • x
+  constructor
+  · refine mem_smul_set.mpr ⟨y, hyU, by simp only [mul_smul, ha]⟩
+  · simp_all [mul_comm a c]
