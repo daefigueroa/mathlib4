@@ -67,30 +67,20 @@ variable (M G : Type*) {α : Type*} [Monoid M] [Group G] [MulAction M α]
   [MulAction G α]
 
 @[to_additive]
-theorem MulAction.thmname2 {s : Set α} :
-  ((⋃ m : M, (fun x : α => m • x) '' s) ⊆ s) ↔
-  ((⋃ m : M, (fun x : α => m • x) ⁻¹' sᶜ) ⊆ sᶜ) := by
-  classical
-  constructor
-  · intro hs
-    have hs'  : ∀ m : M, (fun x : α => m • x) '' s ⊆ s :=
-      (iUnion_subset_iff).1 hs
-    have hs'' : ∀ m : M, s ⊆ (fun x : α => m • x) ⁻¹' s :=
-      fun m => (image_subset_iff).1 (hs' m)
-    have hs''' : ∀ m : M, (fun x : α => m • x) ⁻¹' sᶜ ⊆ sᶜ := by
-      intro m
-      simpa [Set.preimage_compl, subset_compl_comm] using (hs'' m)
-    exact (iUnion_subset_iff).2 hs'''
-  · intro h
-    have h₁ : ∀ m : M, (fun x : α => m • x) ⁻¹' sᶜ ⊆ sᶜ :=
-      (iUnion_subset_iff).1 h
-    have h₂ : ∀ m : M, s ⊆ (fun x : α => m • x) ⁻¹' s := by
-      intro m
-      simpa [Set.preimage_compl, subset_compl_comm] using (h₁ m)
-    have h₃ : ∀ m : M, (fun x : α => m • x) '' s ⊆ s :=
-      fun m => (image_subset_iff).2 (h₂ m)
-    exact (iUnion_subset_iff).2 h₃
+theorem MulAction.thmname1 {s : Set α} : (∀ c : M, c • s ⊆ s) ↔ ∀ c : M, s ⊆ (c • ·) ⁻¹' s := by
+  simp only [← image_smul, image_subset_iff]
 
+@[to_additive]
+theorem MulAction.thmname2 {s : Set α} : (∀ c : M, c • s ⊆ s) ↔ ∀ c : M, (c • ·) ⁻¹' sᶜ ⊆ sᶜ := by
+  simp only [thmname1, preimage_compl, compl_subset_compl]
+
+@[to_additive]
+theorem MulAction.thmname3 {s : Set α} : (⋃ m : M, m • s) ⊆ s ↔ ⋃ m : M, (m • ·) ⁻¹' sᶜ ⊆ sᶜ := by
+  simp only [iUnion_subset_iff, thmname2]
+
+-- @[to_additive]
+-- theorem MulAction.thmname4 {s : Set α} : (⋃ m : M, m • s) ⊆ s ↔ s ⊆ ⋃ m : M, (m • ·) ⁻¹' s := by
+  -- sorry
 
 variable [TopologicalSpace α]
 
@@ -129,17 +119,9 @@ theorem MulAction.isMinimal_iff_univ : IsMinimal M α ↔ transitivePoints M α 
 @[to_additive]
 theorem MulAction.transitivePoints_smul :
     ∀ c : G, transitivePoints G α = c • transitivePoints G α := by
-  intro c
-  unfold transitivePoints
-  ext x
-  constructor
-  · intro h
-    refine mem_smul_set.mpr ?_
-    use c⁻¹ • x
-    simpa only [mem_setOf_eq, orbit_smul, smul_inv_smul, and_true]
-  · intro h
-    rcases h with ⟨y, hy, hyx⟩
-    simp_all only [mem_setOf_eq, ← orbit_smul c y]
+  simp only [transitivePoints, Set.ext_iff]
+  intro c x
+  exact ⟨fun _ ↦ mem_smul_set.2 ⟨c⁻¹ • x, by simpa⟩, fun ⟨y, _, _⟩ ↦ by simp_all [← orbit_smul c y]⟩
 
 @[to_additive]
 theorem exists_denseRange_smul [IsPointTransitive M α] : ∃ x : α, DenseRange fun c : M ↦ c • x :=
@@ -173,7 +155,7 @@ section IsTopologicallyTransitive
 @[to_additive]
 instance (priority := 100) MulAction.isTopologicallyTransitive_of_minimal [IsMinimal M α] :
 IsTopologicallyTransitive M α := by
-  refine ⟨?_⟩
+  constructor
   intro U V hUo hVo hUne hVne
   rcases hUne with ⟨u, hu⟩
   have hu' : u ∈ ⋃ m : M, (fun x : α => m • x) ⁻¹' V := by
@@ -220,7 +202,6 @@ theorem isTopologicallyTransitive_iff_dense_preimage_smul :
       ∀ {U : Set α}, IsOpen U → U.Nonempty → Dense (⋃ m : M, (m • ·) ⁻¹' U) := by
   constructor
   · intro h U hUo hUne
-    haveI := h
     simp only [dense_iff_inter_open]
     intro V hVo hVne
     simp only [inter_iUnion, nonempty_iUnion, ← image_inter_nonempty_iff, image_smul]
@@ -229,7 +210,7 @@ theorem isTopologicallyTransitive_iff_dense_preimage_smul :
     constructor
     intro U V hUo hVo hUne hVne
     have hden : Dense (⋃ m : M, (fun x : α => m • x) ⁻¹' V) := h hVo hVne
-    rcases (dense_iff_inter_open.mp hden) U hUo hUne with ⟨x, hxU, hxUnion⟩
+    rcases (dense_iff_inter_open.mp (h hVo hVne)) U hUo hUne with ⟨x, hxU, hxUnion⟩
     rcases mem_iUnion.mp hxUnion with ⟨m, hxPre⟩
     refine ⟨m, ?_⟩
     refine ⟨m • x, ?_⟩
@@ -274,7 +255,7 @@ theorem isTopologicallyTransitive_iff_isOpen_smul_preimage [ContinuousConstSMul 
 /-- Let `M` be a topologically transitive monoid action on `α`. If `U : Set α` is nonempty and
 negatively invariant (`(⋃ m : M, (m • ·) ⁻¹' U) ⊆ U`) then `U` is dense in `α`. -/
 @[to_additive]
-theorem MulAction.thmname1 [IsTopologicallyTransitive M α] {U : Set α} (hUo : IsOpen U)
+theorem MulAction.thmname4 [IsTopologicallyTransitive M α] {U : Set α} (hUo : IsOpen U)
     (hUne : U.Nonempty) (hneg : (⋃ m : M, (m • ·) ⁻¹' U) ⊆ U) : Dense U :=
   Dense.mono hneg (hUo.dense_iUnion_preimage_smul M hUne)
 
@@ -288,12 +269,12 @@ theorem isTopologicallyTransitive_iff_isClosed_smul_invariant [ContinuousConstSM
   · intro h U hcU hU hn
     refine interior_eq_empty_iff_dense_compl.mpr ?_
     simp_all only [← Set.nonempty_compl]
-    exact  (thmname1 M hcU.isOpen_compl hn ((thmname2 M).1 hU))
+    exact  (thmname4 M hcU.isOpen_compl hn ((thmname3 M).1 hU))
   · intro h
     refine (isTopologicallyTransitive_iff_isOpen_smul_preimage M).mpr ?_
     intro U hUo hUne hUpre
     rw [← compl_compl U] at ⊢ hUpre
-    have hg := h hUo.isClosed_compl ((thmname2 M).2 hUpre) (compl_ne_univ.2 hUne)
+    have hg := h hUo.isClosed_compl ((thmname3 M).2 hUpre) (compl_ne_univ.2 hUne)
     exact (interior_eq_empty_iff_dense_compl.1 hg)
 
 end IsTopologicallyTransitive
@@ -329,7 +310,7 @@ theorem MulAction.IsTopologicallyTransitive.IsPointTransitive_smul₁ [Nonempty 
 
 /-- A point transitive group action is topologically transitive -/
 @[to_additive]
-theorem instIsPointTransitive_of_group_smul [IsPointTransitive G α] :
+theorem instIsTopologicallyTransitive_of_group [IsPointTransitive G α] :
     IsTopologicallyTransitive G α := by
   constructor
   intro U V hUo hVo hUne hVne
@@ -355,8 +336,9 @@ end
 
 variable (M : Type*) {α : Type*} [TopologicalSpace α]
 
-/-- If `α` is a T1 space with no isolated points, then a point transitive monoid action on `α` by
-`M` is topologically transitive. -/
+/-- If `α` is a T1 space with no isolated points and `M` is a commutative, linearly and canonically
+ordered monoid in which all intervals that are bounded above are finite, then a point transitive
+action by M on `α` is topologically transitive. -/
 @[to_additive]
 theorem MulAction.IsPointTransitive.IsTopologicallyTransitive [CommMonoid M] [MulAction M α]
 [LinearOrder M] [CanonicallyOrderedMul M] [LocallyFiniteOrderBot M] [T1Space α] [PerfectSpace α] :
