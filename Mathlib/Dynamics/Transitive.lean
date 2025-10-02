@@ -137,9 +137,8 @@ theorem exists_denseRange_smul [IsPointTransitive M α] : ∃ x : α, DenseRange
   MulAction.exists_dense_orbit M
 
 @[to_additive]
-instance MulAction.isPointTransitive_of_minimal [IsMinimal M α] [Nonempty α] :
-IsPointTransitive M α :=
-  (isPointTransitive_iff M).2 ((inferInstance : Nonempty α).elim fun x ↦ ⟨x, dense_orbit M x⟩)
+instance MulAction.isPointTransitive_of_minimal [IsMinimal M α] [h : Nonempty α] :
+    IsPointTransitive M α := (isPointTransitive_iff M).2 (h.elim fun x ↦ ⟨x, dense_orbit M x⟩)
 
 @[to_additive]
 theorem exists_smul_mem [IsPointTransitive M α] :
@@ -148,9 +147,8 @@ theorem exists_smul_mem [IsPointTransitive M α] :
 
 @[to_additive]
 theorem dense_of_smul_invariant_transitivePoints {s : Set α} (hs : ∀ c : M, c • s ⊆ s)
-    (hx : ∃ x : α, x ∈ s ∧ Dense (MulAction.orbit M x)) : Dense s := by
-  rcases hx with ⟨x, hxs, hxd⟩
-  exact Dense.mono (range_subset_iff.2 (fun c ↦ hs c ⟨x, hxs, rfl⟩)) hxd
+    (hx : ∃ x : α, x ∈ s ∧ Dense (MulAction.orbit M x)) : Dense s :=
+  hx.elim fun x h₁ => h₁.elim fun h₂ h₃ => .mono (range_subset_iff.2 fun _ ↦ hs _ ⟨x, h₂, rfl⟩) h₃
 
 @[to_additive]
 theorem univ_of_isClosed_smul_invariant_transitivePoint {s : Set α} (hc : IsClosed s)
@@ -162,17 +160,6 @@ end IsPointTransitive
 section IsTopologicallyTransitive
 
 @[to_additive]
-instance (priority := 100) MulAction.isTopologicallyTransitive_of_minimal [IsMinimal M α] :
-IsTopologicallyTransitive M α := by
-  constructor
-  intro U V hUo hVo hUne hVne
-  rcases hUne with ⟨u, hu⟩
-  have hu' : u ∈ ⋃ m : M, (fun x : α => m • x) ⁻¹' V := by
-    simp [IsOpen.iUnion_preimage_smul M hVo hVne]
-  rcases mem_iUnion.mp hu' with ⟨m, hm⟩
-  exact ⟨m, ⟨m • u, ⟨⟨u, hu, rfl⟩, hm⟩⟩⟩
-
-@[to_additive]
 theorem MulAction.exists_nonempty_inter [IsTopologicallyTransitive M α] {U V : Set α}
   (hUo : IsOpen U) (hVo : IsOpen V) (hUne : U.Nonempty) (hVne : V.Nonempty) :
     ∃ m : M, ((m • U) ∩ V).Nonempty :=
@@ -181,7 +168,7 @@ theorem MulAction.exists_nonempty_inter [IsTopologicallyTransitive M α] {U V : 
 /-- A monoid action on `α` by `M` is topologically transitive if and only if for any nonempty
 open subset `U` of `α` the union over the elements of `M` of images of `U` is dense in `α`. -/
 @[to_additive]
-theorem isTopologicallyTransitive_iff_dense_iUnion_smul :
+theorem MulAction.isTopologicallyTransitive_iff_dense_iUnion :
     IsTopologicallyTransitive M α ↔
     ∀ {U : Set α}, IsOpen U → U.Nonempty → Dense (⋃ m : M, m • U) := by
   simp only [dense_iff_inter_open, inter_nonempty, mem_iUnion]
@@ -198,7 +185,7 @@ theorem isTopologicallyTransitive_iff_dense_iUnion_smul :
 /-- A monoid action on `α` by `M` is topologically transitive if and only if for any nonempty open
 subset `U` of `α` the union of the preimages of `U` over the elements of `M` is dense in `α`. -/
 @[to_additive]
-theorem isTopologicallyTransitive_iff_dense_preimage_smul :
+theorem MulAction.isTopologicallyTransitive_iff_dense_preimage :
     IsTopologicallyTransitive M α ↔
       ∀ {U : Set α}, IsOpen U → U.Nonempty → Dense (⋃ m : M, (m • ·) ⁻¹' U) := by
   simp only [dense_iff_inter_open]
@@ -213,28 +200,28 @@ theorem isTopologicallyTransitive_iff_dense_preimage_smul :
     rcases mem_iUnion.mp hxUnion with ⟨m, hxPre⟩
     exact ⟨m, ⟨m • x, ⟨⟨x, hxU, rfl⟩, hxPre⟩⟩⟩
 
-/-- Given a topologically transitive monoid action on `α` by `M`, the union of the preimages of a
-nonempty open set over the elements of `M` is dense in `α`. -/
 @[to_additive]
-theorem IsOpen.dense_iUnion_smul [IsTopologicallyTransitive M α] {U : Set α}
+theorem IsOpen.dense_iUnion_smul [h : IsTopologicallyTransitive M α] {U : Set α}
     (hUo : IsOpen U) (hUne : U.Nonempty) : Dense (⋃ m : M, m • U) :=
-  (isTopologicallyTransitive_iff_dense_iUnion_smul M).mp
-    (inferInstance : IsTopologicallyTransitive M α) hUo hUne
+  (isTopologicallyTransitive_iff_dense_iUnion M).mp h hUo hUne
 
-/-- Given a topologically transitive monoid action on `α` by `M`, the union of the preimages of a
-nonempty open set over the elements of `M` is dense in `α`. -/
 @[to_additive]
-theorem IsOpen.dense_iUnion_preimage_smul [IsTopologicallyTransitive M α]
+theorem IsOpen.dense_iUnion_preimage_smul [h : IsTopologicallyTransitive M α]
     {U : Set α} (hUo : IsOpen U) (hUne : U.Nonempty) : Dense (⋃ m : M, (m • ·) ⁻¹' U) :=
-  (isTopologicallyTransitive_iff_dense_preimage_smul M).mp
-    (inferInstance : IsTopologicallyTransitive M α) hUo hUne
+  (isTopologicallyTransitive_iff_dense_preimage M).mp h hUo hUne
+
+@[to_additive]
+instance MulAction.isTopologicallyTransitive_of_minimal [IsMinimal M α] :
+    IsTopologicallyTransitive M α := by
+  refine (isTopologicallyTransitive_iff_dense_preimage M).2 (fun {U} hU hne ↦ ?_)
+  simp only [IsOpen.iUnion_preimage_smul M hU hne, dense_univ]
 
 /-- Let `M` be a topologically transitive monoid action on `α`. If `U : Set α` is nonempty and
 negatively invariant (`(⋃ m : M, (m • ·) ⁻¹' U) ⊆ U`) then `U` is dense in `α`. -/
 @[to_additive]
 theorem IsOpen.dense_of_smul [IsTopologicallyTransitive M α] {U : Set α} (hUo : IsOpen U)
     (hUne : U.Nonempty) (hUinv : (⋃ m : M, (m • ·) ⁻¹' U) ⊆ U) : Dense U :=
-  Dense.mono hUinv (hUo.dense_iUnion_preimage_smul M hUne)
+  .mono hUinv (hUo.dense_iUnion_preimage_smul M hUne)
 
 /-- A continuous monoid action on `α` by `M` is topologically transitive if and only if any
 nonempty open subset `U` of `α` with `(⋃ m : M, (m • ·) ⁻¹' U) ⊆ U` is dense in `α`. -/
@@ -243,7 +230,7 @@ theorem isTopologicallyTransitive_iff_isOpen_smul_preimage [ContinuousConstSMul 
     IsTopologicallyTransitive M α ↔
       ∀ {U : Set α}, IsOpen U → U.Nonempty → ⋃ m : M, (m • ·) ⁻¹' U ⊆ U → Dense U := by
   refine ⟨fun a _ c d e ↦ IsOpen.dense_of_smul M c d e, ?_⟩
-  refine fun h ↦ (isTopologicallyTransitive_iff_dense_preimage_smul M (α := α)).2 ?_
+  refine fun h ↦ (isTopologicallyTransitive_iff_dense_preimage M (α := α)).2 ?_
   intro U hUo hUne
   have ha : (∀ m : M, IsOpen ((fun x : α ↦ m • x)⁻¹' U)) :=
     fun a ↦ (continuous_const_smul a).isOpen_preimage U hUo
