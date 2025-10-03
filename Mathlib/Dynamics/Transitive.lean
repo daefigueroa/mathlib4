@@ -91,43 +91,43 @@ theorem MulAction.isPointTransitive.mk {x : α} (h : Dense (orbit M x)) : IsPoin
 /-- Given a monoid action on a topological space `α`, a point `x` is said to be *transitive* if the
 -- orbit of `x` under `M` is dense in `α`. -/
 @[to_additive]
-abbrev MulAction.transitivePoints (M : Type*) (α : Type*) [Monoid M] [TopologicalSpace α]
+abbrev MulAction.denseOrbits (M : Type*) (α : Type*) [Monoid M] [TopologicalSpace α]
     [MulAction M α] : Set α := {x : α | Dense (orbit M x)}
 
 @[to_additive]
-theorem MulAction.mem_transitivePoints_iff (x : α) :
-    x ∈ transitivePoints M α ↔ Dense (orbit M x) := by rfl
+theorem MulAction.mem_denseOrbits_iff (x : α) :
+    x ∈ denseOrbits M α ↔ Dense (orbit M x) := by rfl
 
 @[to_additive]
-theorem MulAction.preimage_transitivePoints_subset (c : M) :
-    (c • ·) ⁻¹' transitivePoints M α ⊆ transitivePoints M α := fun _ ↦ .mono (orbit_smul_subset ..)
+theorem MulAction.preimage_denseOrbits_subset (c : M) :
+    (c • ·) ⁻¹' denseOrbits M α ⊆ denseOrbits M α := fun _ ↦ .mono (orbit_smul_subset ..)
 
 @[to_additive]
-theorem MulAction.mem_transitivePoints_of_smul {c : M} {x : α} (h : c • x ∈ transitivePoints M α) :
-    x ∈ transitivePoints M α := preimage_subset_iff.1 (preimage_transitivePoints_subset M c) x h
+theorem MulAction.mem_denseOrbits_of_smul {c : M} {x : α} (h : c • x ∈ denseOrbits M α) :
+    x ∈ denseOrbits M α := preimage_subset_iff.1 (preimage_denseOrbits_subset M c) x h
 
 @[to_additive]
 theorem MulAction.exists_dense_orbit [IsPointTransitive M α] : ∃ x : α, Dense (orbit M x) :=
   IsPointTransitive.exists_dense_orbit
 
 @[to_additive]
-theorem MulAction.isPointTransitive_iff : IsPointTransitive M α ↔ Nonempty (transitivePoints M α) :=
-  ⟨fun h ↦ by simp [transitivePoints, exists_dense_orbit M], fun hne ↦ ⟨nonempty_subtype.1 hne⟩⟩
+theorem MulAction.isPointTransitive_iff : IsPointTransitive M α ↔ Nonempty (denseOrbits M α) :=
+  ⟨fun h ↦ by simp [denseOrbits, exists_dense_orbit M], fun hne ↦ ⟨nonempty_subtype.1 hne⟩⟩
 
 @[to_additive]
-theorem MulAction.mem_transitivePoints [IsMinimal M α] (x : α) : x ∈ transitivePoints M α :=
+theorem MulAction.mem_denseOrbits [IsMinimal M α] (x : α) : x ∈ denseOrbits M α :=
   dense_orbit M x
 
 @[to_additive]
-instance MulAction.instNonemptyTransitivePoints [IsPointTransitive M α] :
-    Nonempty (transitivePoints M α) := (isPointTransitive_iff M).1 (by assumption)
+instance MulAction.instNonemptyDenseOrbits [IsPointTransitive M α] :
+    Nonempty (denseOrbits M α) := (isPointTransitive_iff M).1 (by assumption)
 
 @[to_additive]
-theorem MulAction.isMinimal_iff_transitivePoints : IsMinimal M α ↔ transitivePoints M α = univ :=
+theorem MulAction.isMinimal_iff_denseOrbits : IsMinimal M α ↔ denseOrbits M α = univ :=
   Iff.trans ⟨fun _ ↦ dense_orbit M, fun h ↦ ⟨h⟩⟩ (eq_univ_iff_forall).symm
 
 @[to_additive]
-theorem smul_transitivePoints_eq (c : G) : c • transitivePoints G α = transitivePoints G α := by
+theorem MulAction.smul_denseOrbits_eq (c : G) : c • denseOrbits G α = denseOrbits G α := by
   refine Set.ext fun x ↦ ⟨fun ⟨y, _, _⟩ ↦ by simp_all [← orbit_smul c y], ?_⟩
   exact fun _ ↦ mem_smul_set.2 ⟨c⁻¹ • x, by simpa⟩
 
@@ -140,19 +140,19 @@ instance MulAction.isPointTransitive_of_minimal [IsMinimal M α] [h : Nonempty �
     IsPointTransitive M α := (isPointTransitive_iff M).2 (h.elim fun x ↦ ⟨x, dense_orbit M x⟩)
 
 @[to_additive]
-theorem exists_smul_mem [IsPointTransitive M α] :
+theorem MulAction.exists_smul_mem [IsPointTransitive M α] :
     ∃ x : α, ∀ {U}, IsOpen U → U.Nonempty → ∃ c : M, c • x ∈ U :=
   (exists_denseRange_smul M).imp (fun _ g _ hUo hne ↦ DenseRange.exists_mem_open g hUo hne)
 
 @[to_additive]
-theorem dense_of_smul_invariant_transitivePoints {s : Set α} (hs : ∀ c : M, c • s ⊆ s)
+theorem MulAction.dense_of_smul_invariant_denseOrbits {s : Set α} (hs : ∀ c : M, c • s ⊆ s)
     (hx : ∃ x : α, x ∈ s ∧ Dense (MulAction.orbit M x)) : Dense s :=
   hx.elim fun x h₁ ↦ h₁.elim fun h₂ h₃ ↦ .mono (range_subset_iff.2 fun _ ↦ hs _ ⟨x, h₂, rfl⟩) h₃
 
 @[to_additive]
-theorem univ_of_isClosed_smul_invariant_transitivePoint {s : Set α} (hc : IsClosed s)
+theorem MulAction.univ_of_isClosed_smul_invariant_transitivePoint {s : Set α} (hc : IsClosed s)
     (hs : ∀ c : M, c • s ⊆ s) (hx : ∃ x : α, x ∈ s ∧ Dense (orbit M x)) : s = univ :=
-  hc.closure_eq ▸ (dense_of_smul_invariant_transitivePoints M hs hx).closure_eq
+  hc.closure_eq ▸ (dense_of_smul_invariant_denseOrbits M hs hx).closure_eq
 
 end IsPointTransitive
 
@@ -170,11 +170,9 @@ theorem MulAction.isTopologicallyTransitive_iff_dense_iUnion :
     IsTopologicallyTransitive M α ↔
     ∀ {U : Set α}, IsOpen U → U.Nonempty → Dense (⋃ m : M, m • U) := by
   simp only [dense_iff_inter_open, inter_nonempty, mem_iUnion]
-  constructor
-  · refine fun h _ h₁ h₂ _ h₃ h₄ ↦ ?_
-    obtain ⟨m, ⟨a, ha⟩⟩ := h.exists_smul_inter h₁ h₃ h₂ h₄
-    exact ⟨a, ⟨ha.right, ⟨m, ha.left⟩⟩⟩
-  · refine fun h ↦ ⟨fun h₁ h₂ h₃ h₄ ↦ match h h₁ h₃ _ h₂ h₄ with | ⟨_, h₅, _, h₆⟩ => ⟨_, _, h₆, h₅⟩⟩
+  refine ⟨fun h _ h₁ h₂ _ h₃ h₄ ↦ ?_, ?_⟩
+  · exact match h.exists_smul_inter h₁ h₃ h₂ h₄ with | ⟨_, _, h⟩ => ⟨_, h.2, _, h.1⟩
+  · exact fun h ↦ ⟨fun h₁ h₂ h₃ h₄ ↦ match h h₁ h₃ _ h₂ h₄ with | ⟨_, h₅, _, h₆⟩ => ⟨_, _, h₆, h₅⟩⟩
 
 /-- A monoid action on `α` by `M` is topologically transitive if and only if for any nonempty open
 subset `U` of `α` the union of the preimages of `U` over the elements of `M` is dense in `α`. -/
@@ -220,7 +218,7 @@ theorem IsOpen.dense_of_smul [IsTopologicallyTransitive M α] {U : Set α} (hUo 
 /-- A continuous monoid action on `α` by `M` is topologically transitive if and only if any
 nonempty open subset `U` of `α` with `(⋃ m : M, (m • ·) ⁻¹' U) ⊆ U` is dense in `α`. -/
 @[to_additive]
-theorem isTopologicallyTransitive_iff_isOpen_smul_preimage [ContinuousConstSMul M α] :
+theorem MulAction.isTopologicallyTransitive_iff_dense_of_invariant [ContinuousConstSMul M α] :
     IsTopologicallyTransitive M α ↔
       ∀ {U : Set α}, IsOpen U → U.Nonempty → ⋃ m : M, (m • ·) ⁻¹' U ⊆ U → Dense U := by
   refine ⟨fun a _ c d e ↦ IsOpen.dense_of_smul M c d e, ?_⟩
