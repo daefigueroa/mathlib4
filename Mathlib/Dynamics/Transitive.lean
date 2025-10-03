@@ -174,23 +174,27 @@ theorem MulAction.isTopologicallyTransitive_iff_dense_iUnion :
   · exact match h.exists_smul_inter h₁ h₃ h₂ h₄ with | ⟨_, _, h⟩ => ⟨_, h.2, _, h.1⟩
   · exact fun h ↦ ⟨fun h₁ h₂ h₃ h₄ ↦ match h h₁ h₃ _ h₂ h₄ with | ⟨_, h₅, _, h₆⟩ => ⟨_, _, h₆, h₅⟩⟩
 
+-- /-- A monoid action on `α` by `M` is topologically transitive if and only if for any nonempty
+-- open subset `U` of `α` the union over the elements of `M` of images of `U` is dense in `α`. -/
+-- @[to_additive]
+-- theorem MulAction.isTopologicallyTransitive_iff_dense_iUnion₂ :
+--     IsTopologicallyTransitive M α ↔
+--     ∀ {U : Set α}, IsOpen U → U.Nonempty → Dense (⋃ m : M, m • U) := by
+--   simp only [dense_iff_inter_open, inter_iUnion, nonempty_iUnion]
+--   refine ⟨fun h U h₁ h₂ V h₃ h₄ ↦ ?_, ?_⟩
+--   · exact exists_smul_inter M
+--     exact match h.exists_smul_inter h₁ h₃ h₂ h₄ with | ⟨_, _, h⟩ => ⟨_, h.2, _, h.1⟩
+--   · exact fun h ↦ ⟨fun h₁ h₂ h₃ h₄ ↦ match h h₁ h₃ _ h₂ h₄ with | ⟨_, h₅, _, h₆⟩ => ⟨_, _, h₆, h₅⟩⟩
+
 /-- A monoid action on `α` by `M` is topologically transitive if and only if for any nonempty open
 subset `U` of `α` the union of the preimages of `U` over the elements of `M` is dense in `α`. -/
 @[to_additive]
 theorem MulAction.isTopologicallyTransitive_iff_dense_preimage :
     IsTopologicallyTransitive M α ↔
       ∀ {U : Set α}, IsOpen U → U.Nonempty → Dense (⋃ m : M, (m • ·) ⁻¹' U) := by
-  simp only [dense_iff_inter_open]
-  constructor
-  · intro _ _ hUo hUne _ hVo hVne
-    simp only [inter_iUnion, nonempty_iUnion, ← image_inter_nonempty_iff]
-    exact exists_smul_inter M hVo hUo hVne hUne
-  · intro h
-    constructor
-    intro U V hUo hVo hUne hVne
-    rcases (h hVo hVne) U hUo hUne with ⟨x, hxU, hxUnion⟩
-    rcases mem_iUnion.1 hxUnion with ⟨m, hxPre⟩
-    exact ⟨m, ⟨m • x, ⟨⟨x, hxU, rfl⟩, hxPre⟩⟩⟩
+  simp only [dense_iff_inter_open, inter_iUnion, nonempty_iUnion, ← image_inter_nonempty_iff]
+  refine ⟨fun _ _ h₁ h₂ _ h₃ h₄ ↦ exists_smul_inter M h₃ h₁ h₄ h₂, ?_⟩
+  exact fun h ↦ ⟨fun {U V} h₁ h₂ h₃ h₄ ↦ h h₂ h₄ U h₁ h₃⟩
 
 @[to_additive]
 theorem IsOpen.dense_iUnion_smul [h : IsTopologicallyTransitive M α] {U : Set α}
