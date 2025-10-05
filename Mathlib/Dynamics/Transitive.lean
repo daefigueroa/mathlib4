@@ -229,28 +229,18 @@ transitive monoid action on `α` that is continuous in the second argument is po
 theorem MulAction.IsTopologicallyTransitive.IsPointTransitive_smul [Nonempty α] [BaireSpace α]
     [SecondCountableTopology α] [ContinuousConstSMul M α] :
     IsTopologicallyTransitive M α → IsPointTransitive M α := by
-  obtain ⟨b, hbc, hbne, hbb⟩ := exists_countable_basis α
   refine fun h ↦ ⟨?_⟩
-  simp [IsTopologicalBasis.dense_iff hbb]
-  suffices h : Dense (⋂ A : b, ⋃ m : M, (fun x : α ↦ m • x) ⁻¹' (A : Set α)) by
-    rcases Dense.nonempty h with ⟨y, hy⟩
-    use y
-    intro o ho hone
+  obtain ⟨b, hbc, hbne, hbb⟩ := exists_countable_basis α
+  simp [hbb.dense_iff]
+  suffices h₁ : Dense (⋂ A : b, ⋃ m : M, (m • ·) ⁻¹' (A : Set α)) by
+    rcases Dense.nonempty h₁ with ⟨y, hy⟩
     simp [mem_iInter] at hy
-    have hyz := hy o ho
-    refine inter_nonempty.2 ?_
-    rcases hyz with ⟨z, hz⟩
-    exact ⟨z • y, ⟨hz, by simp [mem_orbit]⟩⟩
+    exact ⟨y, fun o h _ ↦ match hy _ h with | ⟨z, h⟩ => inter_nonempty.2 ⟨z • y, h, mem_orbit y z⟩⟩
   simp [iInter_subtype]
-  refine dense_biInter_of_isOpen ?_ hbc ?_
-  · refine fun o ↦ ?_
-    intro ho
-    have hoo := hbb.isOpen ho
-    refine isOpen_iUnion ?_
-    exact fun m ↦ by simp [hoo.preimage (continuous_const_smul m)]
-  · intro s hs
-    have h₂ : s.Nonempty := s.nonempty_iff_ne_empty.2 (ne_of_mem_of_not_mem hs hbne)
-    exact (IsOpen.dense_iUnion_smul_preimage M) (hbb.isOpen hs) h₂
+  refine dense_biInter_of_isOpen (fun o ↦ fun ho ↦ ?_) hbc fun s hs ↦ ?_
+  · exact isOpen_iUnion fun m ↦ by simp [(hbb.isOpen ho).preimage (continuous_const_smul m)]
+  · have h₂ := s.nonempty_iff_ne_empty.2 (ne_of_mem_of_not_mem hs hbne)
+    exact (hbb.isOpen hs).dense_iUnion_smul_preimage M h₂
 
 /-- A point transitive group action is topologically transitive -/
 @[to_additive]
