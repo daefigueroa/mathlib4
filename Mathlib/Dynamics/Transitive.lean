@@ -262,30 +262,24 @@ action by M on `α` is topologically transitive. -/
 theorem MulAction.IsPointTransitive.IsTopologicallyTransitive [CommMonoid M] [MulAction M α]
 [LinearOrder M] [CanonicallyOrderedMul M] [LocallyFiniteOrderBot M] [T1Space α] [PerfectSpace α] :
     IsPointTransitive M α → IsTopologicallyTransitive M α := by
-  intro h
+  refine fun h ↦ ⟨fun {_} ho hne V hVo ⟨v,hv⟩ ↦ ?_⟩
   obtain ⟨x, hx⟩ := h.exists_dense_orbit
-  refine ⟨fun {_} ho hne V hVo hVne ↦ ?_⟩
-  have hUx := dense_iff_inter_open.1 hx _ ho hne
-  obtain ⟨y, hyU, hyo⟩ := hUx
+  simp [dense_iff_inter_open] at hx
+  obtain ⟨y, hyU, hyo⟩ := hx _ ho hne
   obtain ⟨a, ha⟩  := mem_orbit_iff.1 hyo
   let I := Finset.Iic a
-  have g :=  I.finite_toSet
-  let f : M → α := fun i ↦ i • x
-  have gf := Set.Finite.image f g
+  let f : M → α := (· • x)
+  have gf := Set.Finite.image f I.finite_toSet
   have hcl := isClosed_biUnion_finset (s := I) (f := fun i ↦ {f i})
-  simp only [finite_singleton, Finite.isClosed, implies_true, forall_const] at hcl
+  simp only [finite_singleton, Finite.isClosed, implies_true, forall_const] at hcl hVo
   have ho : IsOpen (V \ (⋃ i ∈ I, {f i})) := by simp [IsOpen.sdiff hVo]
-  have hg := infinite_of_mem_nhds (s := V)
-  obtain ⟨v,hv⟩ := hVne
-  have hvx := hg v (IsOpen.mem_nhds hVo hv)
+  have hvx := infinite_of_mem_nhds v (IsOpen.mem_nhds hVo hv)
   have hdne := (Set.Infinite.diff hvx gf).nonempty
   have hdo : IsOpen (V \ (f ''I.toSet)) := by simp [image_eq_iUnion, ho]
-  have hVi := dense_iff_inter_open.1 hx (V \ f '' ↑I) hdo hdne
+  have hVi := hx (V \ f '' ↑I) hdo hdne
   obtain ⟨z, ⟨⟨hzv, hzi⟩, b, hzb⟩⟩ := hVi
-  simp_all only [Finset.finite_toSet, implies_true, mem_image, Finset.mem_coe, not_exists]
-  have hbn := hzi b
-  simp only [not_and, imp_not_comm] at hbn
-  have hbni := hbn hzb
+  simp_all only [mem_image, Finset.mem_coe, not_exists, not_and, imp_not_comm]
+  have hbni := hzi b hzb
   simp only [Finset.mem_Iic, not_le, I] at hbni
   obtain ⟨c, hc⟩ := le_iff_exists_mul.1 hbni.le
   use c
