@@ -122,8 +122,8 @@ theorem MulAction.mem_transitivePoints [IsMinimal M α] (x : α) : x ∈ transit
   dense_orbit M x
 
 @[to_additive]
-instance MulAction.instNonemptyTransitivePoints [IsPointTransitive M α] :
-    Nonempty (transitivePoints M α) := (isPointTransitive_iff M).1 (by assumption)
+instance MulAction.instNonemptyTransitivePoints [h : IsPointTransitive M α] :
+    Nonempty (transitivePoints M α) := (isPointTransitive_iff M).1 h
 
 @[to_additive]
 theorem MulAction.isMinimal_iff_transitivePoints : IsMinimal M α ↔ transitivePoints M α = univ :=
@@ -149,14 +149,14 @@ theorem MulAction.exists_smul_mem [IsPointTransitive M α] :
   (exists_denseRange_smul M).imp (fun _ g _ hUo hne ↦ DenseRange.exists_mem_open g hUo hne)
 
 @[to_additive]
-theorem MulAction.dense_of_smul_invariant_transitivePoints {s : Set α} (hs : ∀ c : M, c • s ⊆ s)
+theorem MulAction.dense_of_smul_invariant {s : Set α} (hs : ∀ c : M, c • s ⊆ s)
     (hx : ∃ x : α, x ∈ s ∧ Dense (MulAction.orbit M x)) : Dense s :=
   hx.elim fun x h₁ ↦ h₁.elim fun h₂ h₃ ↦ .mono (range_subset_iff.2 fun _ ↦ hs _ ⟨x, h₂, rfl⟩) h₃
 
 @[to_additive]
-theorem MulAction.univ_of_isClosed_smul_invariant_transitivePoint {s : Set α} (hc : IsClosed s)
+theorem IsClosed.eq_univ_of_smul_invariant {s : Set α} (hc : IsClosed s)
     (hs : ∀ c : M, c • s ⊆ s) (hx : ∃ x : α, x ∈ s ∧ Dense (orbit M x)) : s = univ :=
-  hc.closure_eq ▸ (dense_of_smul_invariant_transitivePoints M hs hx).closure_eq
+  hc.closure_eq ▸ (dense_of_smul_invariant M hs hx).closure_eq
 
 end IsPointTransitive
 
