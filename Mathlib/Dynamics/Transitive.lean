@@ -81,7 +81,7 @@ theorem MulAction.thmname3 {s : Set α} : (∀ c : M, c • s ⊆ s) ↔ ∀ c :
 
 @[to_additive]
 theorem MulAction.thmname4 {s : Set α} :
-  (⋃ c : M, (c • ·) ⁻¹' s ⊆ s) ↔ (∀ c : M, (c • ·) ⁻¹' s ⊆ s) := by simp
+    ⋃ c : M, (c • ·) ⁻¹' s ⊆ s ↔ ∀ c : M, (c • ·) ⁻¹' s ⊆ s := by simp
 
 variable [TopologicalSpace α]
 
@@ -209,15 +209,15 @@ theorem IsOpen.dense_of_smul_invariant [IsTopologicallyTransitive M α] {U : Set
 /-- A continuous monoid action on `α` by `M` is topologically transitive if and only if any
 nonempty open subset `U` of `α` with `(⋃ m : M, (m • ·) ⁻¹' U) ⊆ U` is dense in `α`. -/
 @[to_additive]
-theorem MulAction.isTopologicallyTransitive_iff_dense_of_invariant [ContinuousConstSMul M α] :
+theorem MulAction.isTopologicallyTransitive_iff_dense_of_invariant [h₀ : ContinuousConstSMul M α] :
     IsTopologicallyTransitive M α ↔
       ∀ {U : Set α}, IsOpen U → U.Nonempty → ⋃ m : M, (m • ·) ⁻¹' U ⊆ U → Dense U := by
   refine ⟨fun a _ h h₁ h₂ ↦ h.dense_of_smul_invariant M h₁ h₂, fun h ↦ ?_⟩
-  refine (isTopologicallyTransitive_iff_dense_preimage M).2 fun {U} hU _ ↦ ?_
-  have hne : (⋃ m : M, (m • ·) ⁻¹' U).Nonempty := nonempty_iUnion.2 ⟨1, by simpa [one_smul]⟩
-  refine h (isOpen_iUnion fun a ↦ (continuous_const_smul a).isOpen_preimage U hU) hne fun x hx ↦ ?_
-  simp only [mem_iUnion, mem_preimage, ← smul_assoc] at ⊢ hx
-  exact hx.elim (fun a h => h.elim (fun b hc => ⟨b • a, hc⟩))
+  refine (isTopologicallyTransitive_iff_dense_preimage M).2 fun {U} hU _ ↦ h ?a ?b fun x hx ↦ ?c
+  rotate_right
+  · simp only [mem_iUnion, mem_preimage, smul_smul] at ⊢ hx
+    exact match hx with | ⟨i, j, hxU⟩ => ⟨j * i, hxU⟩
+  exacts [isOpen_iUnion fun a ↦ hU.preimage (h₀.1 a), nonempty_iUnion.2 ⟨1, by simpa [one_smul]⟩]
 
 @[to_additive]
 instance MulAction.instIsTopologicallyTransitive_of_minimal [IsMinimal M α] :
@@ -256,8 +256,8 @@ end
 variable (M : Type*) {α : Type*} [TopologicalSpace α]
 
 /-- If `α` is a T1 space with no isolated points, and `M` is a commutative linearly ordered monoid
-in which all intervals bounded above are finite and for all `a ≤ b` in `M` there is some `c` for
-which `a * c = b`, then a point transitive action by M on `α` is topologically transitive. -/
+in which all intervals bounded above are finite and in which for all `a ≤ b` in `M` there is a `c`
+for which `a * c = b`, then a point transitive action by M on `α` is topologically transitive. -/
 @[to_additive]
 theorem MulAction.IsPointTransitive.IsTopologicallyTransitive [CommMonoid M] [MulAction M α]
 [LinearOrder M] [ExistsMulOfLE M] [LocallyFiniteOrderBot M] [T1Space α] [PerfectSpace α] :
