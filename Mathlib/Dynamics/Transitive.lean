@@ -13,17 +13,14 @@ import Mathlib.Order.Interval.Finset.Defs
 # Point transitive action of a monoid
 
 In this file we define an action of a monoid `M` on a topological space `α` to be
-*point transitive* if there exists a point in `α` with dense `M`-orbit. We also provide an
-additive version of this definition and prove some basic facts about point transitive
-actions.
-
-## TODO
-
-* Define the set of transitive points
+*point transitive* if there exists a point in `α` with dense `M`-orbit. We define a flow to be
+*topologically transitive* if for any pair of nonempty open sets `U` and `V` in `α` there exists an
+ `m : M` such that `(m ⬝ U ) ∩ V` is nonempty. We also provide additive versions of these
+definitions and prove some basic facts about both types of actions
 
 ## Tags
 
-group action, point transitive
+group action, point transitive, topologically transitive
 -/
 
 
@@ -81,7 +78,7 @@ theorem MulAction.thmname3 {s : Set α} : (∀ c : M, c • s ⊆ s) ↔ ∀ c :
 
 @[to_additive]
 theorem MulAction.thmname4 {s : Set α} :
-    ⋃ c : M, (c • ·) ⁻¹' s ⊆ s ↔ ∀ c : M, (c • ·) ⁻¹' s ⊆ s := by simp
+    ⋃ c : M, (c • ·) ⁻¹' s ⊆ s ↔ ∀ c : M, (c • ·) ⁻¹' s ⊆ s := by rw [iUnion_subset_iff]
 
 variable [TopologicalSpace α]
 
@@ -127,7 +124,7 @@ instance MulAction.instNonemptyTransitivePoints [h : IsPointTransitive M α] :
 
 @[to_additive]
 theorem MulAction.isMinimal_iff_transitivePoints : IsMinimal M α ↔ transitivePoints M α = univ :=
-  Iff.trans ⟨fun _ ↦ dense_orbit M, fun h ↦ ⟨h⟩⟩ (eq_univ_iff_forall).symm
+  .trans ⟨fun _ ↦ dense_orbit M, fun h ↦ ⟨h⟩⟩ (eq_univ_iff_forall).symm
 
 @[to_additive]
 theorem MulAction.smul_transitivePoints_eq (c : G) :
@@ -169,8 +166,8 @@ theorem MulAction.exists_smul_inter [IsTopologicallyTransitive M α] {U : Set α
 
 @[to_additive]
 theorem MulAction.IsTopologicallyTransitive_iff :
-IsTopologicallyTransitive M α ↔ ∀ {U : Set α}, IsOpen U → U.Nonempty → {V : Set α} → IsOpen V →
-V.Nonempty → ∃ m : M, ((m • U) ∩ V).Nonempty := ⟨(fun h => h.1), fun h => ⟨h⟩⟩
+    IsTopologicallyTransitive M α ↔ ∀ {U : Set α}, IsOpen U → U.Nonempty → {V : Set α} → IsOpen V →
+    V.Nonempty → ∃ m : M, ((m • U) ∩ V).Nonempty := ⟨(fun h => h.1), fun h => ⟨h⟩⟩
 
 /-- A monoid action on `α` by `M` is topologically transitive if and only if for any nonempty
 open subset `U` of `α` the union over the elements of `M` of images of `U` is dense in `α`. -/
@@ -214,10 +211,10 @@ theorem MulAction.isTopologicallyTransitive_iff_dense_of_invariant [h₀ : Conti
       ∀ {U : Set α}, IsOpen U → U.Nonempty → ⋃ m : M, (m • ·) ⁻¹' U ⊆ U → Dense U := by
   refine ⟨fun a _ h h₁ h₂ ↦ h.dense_of_smul_invariant M h₁ h₂, fun h ↦ ?_⟩
   refine (isTopologicallyTransitive_iff_dense_preimage M).2 fun {U} hU _ ↦ h ?a ?b fun x hx ↦ ?c
-  rotate_right
+  · exact isOpen_iUnion fun a ↦ hU.preimage (h₀.1 a)
+  · exact nonempty_iUnion.2 ⟨1, by simpa [one_smul]⟩
   · simp only [mem_iUnion, mem_preimage, smul_smul] at ⊢ hx
     exact match hx with | ⟨i, j, hxU⟩ => ⟨j * i, hxU⟩
-  exacts [isOpen_iUnion fun a ↦ hU.preimage (h₀.1 a), nonempty_iUnion.2 ⟨1, by simpa [one_smul]⟩]
 
 @[to_additive]
 instance MulAction.instIsTopologicallyTransitive_of_minimal [IsMinimal M α] :
@@ -265,7 +262,7 @@ theorem MulAction.IsPointTransitive.IsTopologicallyTransitive [CommMonoid M] [Mu
   refine fun ⟨x, hx⟩ ↦ ⟨fun {U} ho hne V hVo ⟨v, hv⟩ ↦ ?_⟩
   have ⟨y, h, hyo⟩ := dense_iff_inter_open.1 hx U ho hne
   have ⟨a, ha⟩  := mem_orbit_iff.1 hyo
-  let I := Finset.Iic a
+  let I : Finset M := Finset.Iic a
   let f : M → α := (· • x)
   have ho := hVo.sdiff (by simpa using isClosed_biUnion_finset (s := I) (f := fun i ↦ {f i}))
   have hn := ((infinite_of_mem_nhds v (hVo.mem_nhds hv)).diff (I.finite_toSet.image f)).nonempty
