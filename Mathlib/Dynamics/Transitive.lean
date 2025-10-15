@@ -65,7 +65,7 @@ subset `U` of `α` the union of the preimages of `U` over the elements of `M` is
 @[to_additive]
 theorem MulAction.isTopologicallyTransitive_iff_dense_iUnion_preimage :
     IsTopologicallyTransitive M α ↔
-      ∀ {U : Set α}, IsOpen U → U.Nonempty → Dense (⋃ m : M, (m • ·) ⁻¹' U) := by
+    ∀ {U : Set α}, IsOpen U → U.Nonempty → Dense (⋃ m : M, (m • ·) ⁻¹' U) := by
   simp only [dense_iff_inter_open, inter_iUnion, nonempty_iUnion, ← image_inter_nonempty_iff]
   exact ⟨fun h _ h₁ h₂ _ h₃ h₄ ↦ h.1 h₃ h₄ h₁ h₂, fun h ↦ ⟨fun h₁ h₂ _ h₃ h₄ ↦ h h₃ h₄ _ h₁ h₂⟩⟩
 
@@ -91,7 +91,7 @@ nonempty open subset `U` of `α` with `(⋃ m : M, (m • ·) ⁻¹' U) ⊆ U` i
 @[to_additive]
 theorem MulAction.isTopologicallyTransitive_iff_dense_of_preimage_invariant
     [h : ContinuousConstSMul M α] : IsTopologicallyTransitive M α ↔
-      ∀ {U : Set α}, IsOpen U → U.Nonempty → ⋃ m : M, (m • ·) ⁻¹' U ⊆ U → Dense U := by
+    ∀ {U : Set α}, IsOpen U → U.Nonempty → ⋃ m : M, (m • ·) ⁻¹' U ⊆ U → Dense U := by
   refine ⟨fun a _ h₀ h₁ h₂ ↦ h₀.dense_of_preimage_smul_invariant M h₁ h₂, fun h₄ ↦ ?_⟩
   refine (isTopologicallyTransitive_iff_dense_iUnion_preimage M).mpr ?_
   refine fun hU _ ↦ h₄ (isOpen_iUnion fun a ↦ hU.preimage (h.1 a)) ?_ fun x hx ↦ ?_
