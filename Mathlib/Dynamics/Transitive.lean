@@ -12,8 +12,9 @@ import Mathlib.Topology.Baire.Lemmas
 In this file we define an action of a monoid `M` on a topological space `α` to be
 *point transitive* if there exists a point in `α` with dense `M`-orbit. We define a flow to be
 *topologically transitive* if for any pair of nonempty open sets `U` and `V` in `α` there exists an
- `m : M` such that `(m • U) ∩ V` is nonempty. We also provide additive versions of these
-definitions and prove basic facts about both kinds of actions.
+ `m : M` such that `(m • U) ∩ V` is nonempty. We also provide additive versions of point
+transitive and topologically transitive actions and prove basic facts about the multiplicative and
+additive versions.
 
 ## Tags
 
@@ -102,7 +103,7 @@ theorem denseRange_smul_of_mem_transitivePoints {x : α} (hx : x ∈ transitiveP
     DenseRange fun c : M ↦ c • x := hx
 
 @[to_additive]
-instance MulAction.IsPointTransitive_of_minimal [IsMinimal M α] [h : Nonempty α] :
+instance MulAction.IsPointTransitive_of_isMinimal [IsMinimal M α] [h : Nonempty α] :
     IsPointTransitive M α := (isPointTransitive_iff M).2 (h.elim fun x ↦ ⟨x, dense_orbit M x⟩)
 
 @[to_additive]
