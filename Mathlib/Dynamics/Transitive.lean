@@ -29,7 +29,7 @@ variable (M α : Type*) [TopologicalSpace α]
 *topologically transitive* if for any pair of nonempty open sets `U` and `V` in `α` there exists an
 `m : M` such that `(m +ᵥ U ) ∩ V` is nonempty. -/
 class AddAction.IsTopologicallyTransitive [AddMonoid M] [AddAction M α] : Prop where
-  exists_vadd_inter : ∀ {U : Set α}, IsOpen U → U.Nonempty → {V : Set α} → IsOpen V → V.Nonempty →
+  exists_vadd_inter : ∀ {U V : Set α}, IsOpen U → U.Nonempty → IsOpen V → V.Nonempty →
     ∃ m : M, ((m +ᵥ U) ∩ V).Nonempty
 
 /-- An action of a monoid `M` on a topological space `α` is called *topologically transitive* if
@@ -37,7 +37,7 @@ for any pair of nonempty open sets `U` and `V` in `α` there exists an `m : M` s
 `(m • U) ∩ V` is nonempty. -/
 @[to_additive]
 class MulAction.IsTopologicallyTransitive [Monoid M] [MulAction M α] : Prop where
-  exists_smul_inter : ∀ {U : Set α}, IsOpen U → U.Nonempty → {V : Set α} → IsOpen V → V.Nonempty →
+  exists_smul_inter : ∀ {U V : Set α}, IsOpen U → U.Nonempty → IsOpen V → V.Nonempty →
     ∃ m : M, ((m • U) ∩ V).Nonempty
 
 end
@@ -49,7 +49,7 @@ section IsTopologicallyTransitive
 
 @[to_additive]
 theorem MulAction.isTopologicallyTransitive_iff :
-    IsTopologicallyTransitive M α ↔ ∀ {U : Set α}, IsOpen U → U.Nonempty → {V : Set α} → IsOpen V →
+    IsTopologicallyTransitive M α ↔ ∀ {U V : Set α}, IsOpen U → U.Nonempty → IsOpen V →
     V.Nonempty → ∃ m : M, ((m • U) ∩ V).Nonempty := ⟨(fun h => h.1), fun h => ⟨h⟩⟩
 
 /-- A monoid action on `α` by `M` is topologically transitive if and only if for any nonempty
@@ -59,6 +59,7 @@ theorem MulAction.isTopologicallyTransitive_iff_dense_iUnion :
     IsTopologicallyTransitive M α ↔
     ∀ {U : Set α}, IsOpen U → U.Nonempty → Dense (⋃ m : M, m • U) := by
   simp [isTopologicallyTransitive_iff, dense_iff_inter_open, inter_iUnion, inter_comm]
+  exact ⟨fun h _ h₁ h₂ _ h₃ h₄ ↦ h h₁ h₂ h₃ h₄, (fun h _ _ h₁ h₂ h₃ h₄ => h h₁ h₂ _ h₃ h₄)⟩
 
 /-- A monoid action on `α` by `M` is topologically transitive if and only if for any nonempty open
 subset `U` of `α` the union of the preimages of `U` over the elements of `M` is dense in `α`. -/
@@ -67,7 +68,7 @@ theorem MulAction.isTopologicallyTransitive_iff_dense_iUnion_preimage :
     IsTopologicallyTransitive M α ↔
     ∀ {U : Set α}, IsOpen U → U.Nonempty → Dense (⋃ m : M, (m • ·) ⁻¹' U) := by
   simp only [dense_iff_inter_open, inter_iUnion, nonempty_iUnion, ← image_inter_nonempty_iff]
-  exact ⟨fun h _ h₁ h₂ _ h₃ h₄ ↦ h.1 h₃ h₄ h₁ h₂, fun h ↦ ⟨fun h₁ h₂ _ h₃ h₄ ↦ h h₃ h₄ _ h₁ h₂⟩⟩
+  exact ⟨fun h _ h₁ h₂ _ h₃ h₄ ↦ h.1 h₃ h₄ h₁ h₂, fun h ↦ ⟨fun h₁ h₂ h₃ h₄ ↦ h h₃ h₄ _ h₁ h₂⟩⟩
 
 @[to_additive]
 theorem IsOpen.dense_iUnion_smul [h : IsTopologicallyTransitive M α] {U : Set α}
