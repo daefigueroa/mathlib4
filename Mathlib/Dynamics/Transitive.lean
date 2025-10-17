@@ -19,7 +19,7 @@ group action, topologically transitive
 -/
 
 
-open Pointwise MulAction Set
+open MulAction Pointwise Set
 
 section
 
