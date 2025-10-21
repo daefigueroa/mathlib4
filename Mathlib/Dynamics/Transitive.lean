@@ -7,26 +7,26 @@ import Mathlib.Dynamics.Minimal
 import Mathlib.Topology.Baire.Lemmas
 
 /-!
-# Topologically transitive and point transitive action of a monoid
+# Topologically transitive and point transitive actions of groups
 
 In this file we define an action of a monoid `M` on a topological space `α` to be
-*point transitive* if there exists a point in `α` with dense `M`-orbit, and define the set of
+*point transitive* if there exists a point in `α` with dense `M`-orbit and we define the set of
 transitive points to be the points for which the orbit under `M` is dense. We define a flow to be
 *topologically transitive* if for any pair of nonempty open sets `U` and `V` in `α` there exists an
- `m : M` such that `(m • U) ∩ V` is nonempty. We also provide additive versions of point
-transitive and topologically transitive actions and prove basic facts about the multiplicative and
-additive versions.
+`m : M` such that `(m • U) ∩ V` is nonempty. We also provide additive versions of point transitive
+and topologically transitive actions and prove basic facts about the multiplicative and additive
+versions.
 
 ## Tags
 
-group action, point transitive, transitive points, topologically transitive
+group action, transitive points, topologically transitive
 -/
 
 
 open scoped Pointwise
 
 /-- An action of an additive monoid `M` on a topological space is called *point transitive* if
-there exists a point `x : α ` with dense `M`-orbit. -/
+there exists a point `x : α` with dense `M`-orbit. -/
 class AddAction.IsPointTransitive (M α : Type*) [AddMonoid M] [TopologicalSpace α] [AddAction M α] :
     Prop where
   exists_dense_orbit : ∃ x : α, Dense (orbit M x)
@@ -41,7 +41,7 @@ class MulAction.IsPointTransitive (M α : Type*) [Monoid M] [TopologicalSpace α
 /-- Given a monoid action on a topological space `α`, a point `x` is said to be *transitive* if the
 orbit of `x` under `M` is dense in `α`. -/
 @[to_additive]
-abbrev MulAction.transitivePoints (M α : Type*) [Monoid M] [TopologicalSpace α] [MulAction M α] :
+def MulAction.transitivePoints (M α : Type*) [Monoid M] [TopologicalSpace α] [MulAction M α] :
     Set α := {x : α | Dense (orbit M x)}
 
 /-- An action of an additive monoid `M` on a topological space `α` is called
@@ -69,42 +69,43 @@ variable (M G : Type*) {α : Type*} [TopologicalSpace α] [Monoid M] [Group G] [
 section IsPointTransitive
 
 @[to_additive]
-theorem MulAction.isPointTransitive_iff :
+theorem MulAction.isPointTransitive_iff_transitivePoints_nonempty :
     IsPointTransitive M α ↔ (transitivePoints M α).Nonempty :=
   ⟨fun ⟨x , hx⟩ ↦ ⟨x, hx⟩, fun ⟨x, hx⟩ ↦ ⟨x, hx⟩⟩
 
-theorem MulAction.IsPointTransitive_of_mem {x : α} (h : x ∈ transitivePoints M α) :
-    IsPointTransitive M α := (isPointTransitive_iff M).2 ⟨x, h⟩
+theorem MulAction.isPointTransitive_of_mem {x : α} (h : x ∈ transitivePoints M α) :
+    IsPointTransitive M α := (isPointTransitive_iff_transitivePoints_nonempty M).2 ⟨x, h⟩
 
 @[to_additive]
-theorem MulAction.preimage_transitivePoints_subset (c : M) :
+theorem MulAction.preimage_smul_transitivePoints_subset (c : M) :
     (c • ·) ⁻¹' transitivePoints M α ⊆ transitivePoints M α := fun _ ↦ .mono (orbit_smul_subset ..)
 
 @[to_additive]
 theorem MulAction.mem_transitivePoints_of_smul {c : M} {x : α} (h : c • x ∈ transitivePoints M α) :
-    x ∈ transitivePoints M α := preimage_subset_iff.1 (preimage_transitivePoints_subset M c) x h
+    x ∈ transitivePoints M α := preimage_subset_iff.1 (preimage_smul_transitivePoints_subset ..) x h
 
 @[to_additive]
-theorem MulAction.mem_transitivePoints [IsMinimal M α] (x : α) : x ∈ transitivePoints M α :=
-  dense_orbit M x
+theorem MulAction.mem_transitivePoints_of_isMinimal [IsMinimal M α] (x : α) :
+    x ∈ transitivePoints M α := dense_orbit M x
 
 @[to_additive]
-theorem MulAction.isMinimal_iff_transitivePoints : IsMinimal M α ↔ transitivePoints M α = univ :=
+theorem MulAction.isMinimal_iff_transitivePoints_eq : IsMinimal M α ↔ transitivePoints M α = univ :=
   .trans ⟨fun _ ↦ dense_orbit M, fun h ↦ ⟨h⟩⟩ (eq_univ_iff_forall).symm
 
 @[to_additive]
 theorem MulAction.smul_transitivePoints_eq (c : G) :
     c • transitivePoints G α = transitivePoints G α := by
-  refine Set.ext fun x ↦ ⟨fun ⟨y, _, _⟩ ↦ by simp_all [← orbit_smul c y], ?_⟩
-  exact fun _ ↦ mem_smul_set.2 ⟨c⁻¹ • x, by simpa⟩
+  refine Set.ext fun x ↦ ⟨fun ⟨y, _, _⟩ ↦ by simp_all [transitivePoints, ← orbit_smul c y], ?_⟩
+  exact fun _ ↦ mem_smul_set.2 ⟨c⁻¹ • x, by simpa [transitivePoints]⟩
 
 @[to_additive]
 theorem denseRange_smul_of_mem_transitivePoints {x : α} (hx : x ∈ transitivePoints M α) :
     DenseRange fun c : M ↦ c • x := hx
 
 @[to_additive]
-instance MulAction.IsPointTransitive_of_isMinimal [IsMinimal M α] [h : Nonempty α] :
-    IsPointTransitive M α := (isPointTransitive_iff M).2 (h.elim fun x ↦ ⟨x, dense_orbit M x⟩)
+instance MulAction.isPointTransitive_of_isMinimal [IsMinimal M α] [h : Nonempty α] :
+    IsPointTransitive M α :=
+  (isPointTransitive_iff_transitivePoints_nonempty M).2 (h.elim fun x ↦ ⟨x, dense_orbit M x⟩)
 
 @[to_additive]
 theorem IsOpen.exists_smul_mem_of_mem_transitivePoints {x : α} (hx : x ∈ transitivePoints M α)
@@ -189,7 +190,7 @@ end IsTopologicallyTransitive
 /-- If `α` is a nonempty Baire space with a second-countable topology, then any topologically
 transitive monoid action on `α` that is continuous in the second argument is point transitive. -/
 @[to_additive]
-theorem MulAction.IsTopologicallyTransitive.IsPointTransitive [Nonempty α] [BaireSpace α]
+theorem MulAction.isTopologicallyTransitive.isPointTransitive [Nonempty α] [BaireSpace α]
     [SecondCountableTopology α] [hc : ContinuousConstSMul M α] [IsTopologicallyTransitive M α] :
     IsPointTransitive M α := by
   refine ⟨match TopologicalSpace.exists_countable_basis α with | ⟨b, h₁, h₂, h₃⟩ => ?_⟩
@@ -203,7 +204,7 @@ theorem MulAction.IsTopologicallyTransitive.IsPointTransitive [Nonempty α] [Bai
 
 /-- A point transitive group action is topologically transitive -/
 @[to_additive]
-theorem MulAction.IsPointTransitive.IsTopologicallyTransitive [h : IsPointTransitive G α] :
+theorem MulAction.isPointTransitive.isTopologicallyTransitive [h : IsPointTransitive G α] :
     IsTopologicallyTransitive G α := by
   refine ⟨match h.exists_dense_orbit with | ⟨x, hx⟩ => fun ho hne hVo hVne ↦ ?_⟩
   simp only [dense_iff_inter_open, inter_nonempty, mem_smul_set, exists_exists_and_eq_and] at hx ⊢
