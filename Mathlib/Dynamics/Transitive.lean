@@ -77,11 +77,11 @@ theorem MulAction.isPointTransitive_of_mem_transitivePoints {x : α} (h : x ∈ 
     IsPointTransitive M α := (isPointTransitive_iff_transitivePoints_nonempty M).2 ⟨x, h⟩
 
 @[to_additive]
-theorem preimage_smul_transitivePoints_subset (c : M) :
+theorem MulAction.preimage_smul_transitivePoints_subset (c : M) :
     (c • ·) ⁻¹' transitivePoints M α ⊆ transitivePoints M α := fun _ ↦ .mono (orbit_smul_subset ..)
 
 @[to_additive]
-theorem mem_transitivePoints_of_smul {c : M} {x : α} (h : c • x ∈ transitivePoints M α) :
+theorem MulAction.mem_transitivePoints_of_smul {c : M} {x : α} (h : c • x ∈ transitivePoints M α) :
     x ∈ transitivePoints M α := preimage_subset_iff.1 (preimage_smul_transitivePoints_subset ..) x h
 
 @[to_additive]
@@ -93,13 +93,13 @@ theorem MulAction.isMinimal_iff_transitivePoints_eq : IsMinimal M α ↔ transit
   .trans ⟨fun _ ↦ dense_orbit M, fun h ↦ ⟨h⟩⟩ (eq_univ_iff_forall).symm
 
 @[to_additive]
-theorem smul_transitivePoints_eq (c : G) :
+theorem MulAction.smul_transitivePoints_eq (c : G) :
     c • transitivePoints G α = transitivePoints G α := by
   refine Set.ext fun x ↦ ⟨fun ⟨y, _, _⟩ ↦ by simp_all [transitivePoints, ← orbit_smul c y], ?_⟩
   exact fun _ ↦ mem_smul_set.2 ⟨c⁻¹ • x, by simpa [transitivePoints]⟩
 
 @[to_additive]
-theorem denseRange_smul_of_mem_transitivePoints {x : α} (hx : x ∈ transitivePoints M α) :
+theorem MulAction.denseRange_smul_of_mem_transitivePoints {x : α} (hx : x ∈ transitivePoints M α) :
     DenseRange fun c : M ↦ c • x := hx
 
 @[to_additive]
