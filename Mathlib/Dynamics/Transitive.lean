@@ -7,11 +7,11 @@ import Mathlib.Dynamics.Minimal
 import Mathlib.Topology.Baire.Lemmas
 
 /-!
-# Topologically transitive and point transitive actions of groups
+# Topologically transitive and point transitive actions of monoids
 
 In this file we define an action of a monoid `M` on a topological space `α` to be
 *point transitive* if there exists a point in `α` with dense `M`-orbit and we define the set of
-transitive points to be the points for which the orbit under `M` is dense. We define a flow to be
+transitive points to be the points for which the orbit under `M` is dense. We define an action to be
 *topologically transitive* if for any pair of nonempty open sets `U` and `V` in `α` there exists an
 `m : M` such that `(m • U) ∩ V` is nonempty. We also provide additive versions of point transitive
 and topologically transitive actions and prove basic facts about the multiplicative and additive
@@ -204,7 +204,7 @@ theorem MulAction.isTopologicallyTransitive.isPointTransitive [Nonempty α] [Bai
 
 /-- A point transitive group action is topologically transitive -/
 @[to_additive]
-instance MulAction.isPointTransitive.isTopologicallyTransitive [h : IsPointTransitive G α] :
+instance MulAction.isTopologicallyTransitive_of_isPointTransitive [h : IsPointTransitive G α] :
     IsTopologicallyTransitive G α := by
   refine ⟨match h.exists_dense_orbit with | ⟨x, hx⟩ => fun ho hne hVo hVne ↦ ?_⟩
   simp only [dense_iff_inter_open, inter_nonempty, mem_smul_set, exists_exists_and_eq_and] at hx ⊢
