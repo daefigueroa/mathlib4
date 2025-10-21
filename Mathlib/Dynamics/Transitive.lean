@@ -47,8 +47,9 @@ abbrev MulAction.transitivePoints [Monoid M] [MulAction M α] : Set α := {x : �
 
 /-- An action of an additive monoid `M` on a topological space `α` is called
 *topologically transitive* if for any pair of nonempty open sets `U` and `V` in `α` there exists an
-`m : M` such that `(m +ᵥ U ) ∩ V` is nonempty. -/
-class AddAction.IsTopologicallyTransitive [AddMonoid M] [AddAction M α] : Prop where
+`m : M` such that `(m +ᵥ U) ∩ V` is nonempty. -/
+class AddAction.IsTopologicallyTransitive (M α : Type*) [AddMonoid M] [TopologicalSpace α]
+    [AddAction M α] : Prop where
   exists_vadd_inter : ∀ {U V : Set α}, IsOpen U → U.Nonempty → IsOpen V → V.Nonempty →
     ∃ m : M, ((m +ᵥ U) ∩ V).Nonempty
 
@@ -56,10 +57,12 @@ class AddAction.IsTopologicallyTransitive [AddMonoid M] [AddAction M α] : Prop 
 for any pair of nonempty open sets `U` and `V` in `α` there exists an `m : M` such that
 `(m • U) ∩ V` is nonempty. -/
 @[to_additive]
-class MulAction.IsTopologicallyTransitive [Monoid M] [MulAction M α] : Prop where
+class MulAction.IsTopologicallyTransitive (M α : Type*) [Monoid M] [TopologicalSpace α]
+    [MulAction M α] : Prop where
   exists_smul_inter : ∀ {U V : Set α}, IsOpen U → U.Nonempty → IsOpen V → V.Nonempty →
     ∃ m : M, ((m • U) ∩ V).Nonempty
 
+open MulAction Set
 end
 
 open MulAction Set
@@ -128,6 +131,8 @@ section IsTopologicallyTransitive
 
 @[to_additive]
 theorem MulAction.isTopologicallyTransitive_iff :
+    IsTopologicallyTransitive M α ↔ ∀ {U V : Set α}, IsOpen U → U.Nonempty → IsOpen V →
+    V.Nonempty → ∃ m : M, ((m • U) ∩ V).Nonempty := ⟨fun h ↦ h.1, fun h ↦ ⟨h⟩⟩
     IsTopologicallyTransitive M α ↔ ∀ {U V : Set α}, IsOpen U → U.Nonempty → IsOpen V → V.Nonempty →
     ∃ m : M, ((m • U) ∩ V).Nonempty := ⟨(fun h => h.1), fun h => ⟨h⟩⟩
 
@@ -138,7 +143,7 @@ theorem MulAction.isTopologicallyTransitive_iff_dense_iUnion :
     IsTopologicallyTransitive M α ↔
     ∀ {U : Set α}, IsOpen U → U.Nonempty → Dense (⋃ m : M, m • U) := by
   simp [isTopologicallyTransitive_iff, dense_iff_inter_open, inter_iUnion, inter_comm]
-  exact ⟨fun h _ h₁ h₂ _ h₃ h₄ ↦ h h₁ h₂ h₃ h₄, (fun h _ _ h₁ h₂ h₃ h₄ => h h₁ h₂ _ h₃ h₄)⟩
+  exact ⟨fun h _ h₁ h₂ _ h₃ h₄ ↦ h h₁ h₂ h₃ h₄, fun h _ _ h₁ h₂ h₃ h₄ ↦ h h₁ h₂ _ h₃ h₄⟩
 
 /-- A monoid action on `α` by `M` is topologically transitive if and only if for any nonempty open
 subset `U` of `α` the union of the preimages of `U` over the elements of `M` is dense in `α`. -/
@@ -172,11 +177,11 @@ nonempty open subset `U` of `α` with `(⋃ m : M, (m • ·) ⁻¹' U) ⊆ U` i
 theorem MulAction.isTopologicallyTransitive_iff_dense_of_preimage_invariant
     [h : ContinuousConstSMul M α] : IsTopologicallyTransitive M α ↔
     ∀ {U : Set α}, IsOpen U → U.Nonempty → ⋃ m : M, (m • ·) ⁻¹' U ⊆ U → Dense U := by
-  refine ⟨fun a _ h₀ h₁ h₂ ↦ h₀.dense_of_preimage_smul_invariant M h₁ h₂, fun h₄ ↦ ?_⟩
+  refine ⟨fun _ _ h₀ h₁ h₂ ↦ h₀.dense_of_preimage_smul_invariant M h₁ h₂, fun h₄ ↦ ?_⟩
   refine (isTopologicallyTransitive_iff_dense_iUnion_preimage M).mpr ?_
   refine fun hU _ ↦ h₄ (isOpen_iUnion fun a ↦ hU.preimage (h.1 a)) ?_ fun x hx ↦ ?_
   · exact nonempty_iUnion.mpr ⟨1, by simpa [one_smul]⟩
-  · simp only [mem_iUnion, mem_preimage, smul_smul] at ⊢ hx
+  · simp only [mem_iUnion, mem_preimage, smul_smul] at hx ⊢
     exact match hx with | ⟨i, j, h₀⟩ => ⟨j * i, h₀⟩
 
 @[to_additive]
