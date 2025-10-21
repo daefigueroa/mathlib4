@@ -23,27 +23,26 @@ group action, point transitive, transitive points, topologically transitive
 -/
 
 
-open MulAction Pointwise Set
-
-section
-
-variable (M α : Type*) [TopologicalSpace α]
+open scoped Pointwise
 
 /-- An action of an additive monoid `M` on a topological space is called *point transitive* if
 there exists a point `x : α ` with dense `M`-orbit. -/
-class AddAction.IsPointTransitive [AddMonoid M] [AddAction M α] : Prop where
+class AddAction.IsPointTransitive (M α : Type*) [AddMonoid M] [TopologicalSpace α] [AddAction M α] :
+    Prop where
   exists_dense_orbit : ∃ x : α, Dense (orbit M x)
 
 /-- An action of a monoid `M` on a topological space is called *point transitive* if there exists a
 point `x : α` with dense `M`-orbit. -/
 @[to_additive]
-class MulAction.IsPointTransitive [Monoid M] [MulAction M α] : Prop where
+class MulAction.IsPointTransitive (M α : Type*) [Monoid M] [TopologicalSpace α] [MulAction M α] :
+    Prop where
   exists_dense_orbit : ∃ x : α, Dense (orbit M x)
 
 /-- Given a monoid action on a topological space `α`, a point `x` is said to be *transitive* if the
 orbit of `x` under `M` is dense in `α`. -/
 @[to_additive]
-abbrev MulAction.transitivePoints [Monoid M] [MulAction M α] : Set α := {x : α | Dense (orbit M x)}
+abbrev MulAction.transitivePoints (M α : Type*) [Monoid M] [TopologicalSpace α] [MulAction M α] :
+    Set α := {x : α | Dense (orbit M x)}
 
 /-- An action of an additive monoid `M` on a topological space `α` is called
 *topologically transitive* if for any pair of nonempty open sets `U` and `V` in `α` there exists an
@@ -61,9 +60,6 @@ class MulAction.IsTopologicallyTransitive (M α : Type*) [Monoid M] [Topological
     [MulAction M α] : Prop where
   exists_smul_inter : ∀ {U V : Set α}, IsOpen U → U.Nonempty → IsOpen V → V.Nonempty →
     ∃ m : M, ((m • U) ∩ V).Nonempty
-
-open MulAction Set
-end
 
 open MulAction Set
 
@@ -133,8 +129,6 @@ section IsTopologicallyTransitive
 theorem MulAction.isTopologicallyTransitive_iff :
     IsTopologicallyTransitive M α ↔ ∀ {U V : Set α}, IsOpen U → U.Nonempty → IsOpen V →
     V.Nonempty → ∃ m : M, ((m • U) ∩ V).Nonempty := ⟨fun h ↦ h.1, fun h ↦ ⟨h⟩⟩
-    IsTopologicallyTransitive M α ↔ ∀ {U V : Set α}, IsOpen U → U.Nonempty → IsOpen V → V.Nonempty →
-    ∃ m : M, ((m • U) ∩ V).Nonempty := ⟨(fun h => h.1), fun h => ⟨h⟩⟩
 
 /-- A monoid action on `α` by `M` is topologically transitive if and only if for any nonempty
 open subset `U` of `α` the union over the elements of `M` of images of `U` is dense in `α`. -/
