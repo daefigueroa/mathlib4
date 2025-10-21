@@ -11,15 +11,15 @@ import Mathlib.Topology.Baire.Lemmas
 
 In this file we define an action of a monoid `M` on a topological space `α` to be
 *point transitive* if there exists a point in `α` with dense `M`-orbit and we define the set of
-transitive points to be the points for which the orbit under `M` is dense. We define an action to be
-*topologically transitive* if for any pair of nonempty open sets `U` and `V` in `α` there exists an
-`m : M` such that `(m • U) ∩ V` is nonempty. We also provide additive versions of point transitive
-and topologically transitive actions and prove basic facts about the multiplicative and additive
-versions.
+*transitive points* to be the points for which the orbit under `M` is dense. We define an action to
+be *topologically transitive* if for any pair of nonempty open sets `U` and `V` in `α` there exists
+an `m : M` such that `(m • U) ∩ V` is nonempty. We also provide additive versions of point
+transitive and topologically transitive actions and prove basic facts about the multiplicative and
+additive versions.
 
 ## Tags
 
-group action, transitive points, topologically transitive
+group action, transitive points, point transitive, topologically transitive
 -/
 
 
