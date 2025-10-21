@@ -204,7 +204,7 @@ theorem MulAction.isTopologicallyTransitive.isPointTransitive [Nonempty α] [Bai
 
 /-- A point transitive group action is topologically transitive -/
 @[to_additive]
-theorem MulAction.isPointTransitive.isTopologicallyTransitive [h : IsPointTransitive G α] :
+instance MulAction.isPointTransitive.isTopologicallyTransitive [h : IsPointTransitive G α] :
     IsTopologicallyTransitive G α := by
   refine ⟨match h.exists_dense_orbit with | ⟨x, hx⟩ => fun ho hne hVo hVne ↦ ?_⟩
   simp only [dense_iff_inter_open, inter_nonempty, mem_smul_set, exists_exists_and_eq_and] at hx ⊢
