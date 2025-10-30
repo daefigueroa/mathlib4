@@ -38,9 +38,10 @@ class MulAction.IsPointTransitive (M α : Type*) [Monoid M] [TopologicalSpace α
     Prop where
   exists_dense_orbit : ∃ x : α, Dense (orbit M x)
 
-/-- Given a monoid action on a topological space `α`, a point `x` is said to be *transitive* if the
-orbit of `x` under `M` is dense in `α`. -/
-@[to_additive]
+/-- Given an action of a monoid on a topological space `α`, a point `x` is said to be *transitive*
+if the orbit of `x` under `M` is dense in `α`. -/
+@[to_additive /-- Given an action of an additive monoid on a topological space `α`, a point `x` is
+said to be *transitive* if the orbit of `x` under `M` is dense in `α`. -/]
 def MulAction.transitivePoints (M α : Type*) [Monoid M] [TopologicalSpace α] [MulAction M α] :
     Set α := {x : α | Dense (orbit M x)}
 
@@ -199,8 +200,11 @@ instance MulAction.isTopologicallyTransitive_of_isMinimal [IsMinimal M α] :
 end IsTopologicallyTransitive
 
 /-- If `α` is a nonempty Baire space with a second-countable topology, then any topologically
-transitive monoid action on `α` that is continuous in the second argument is point transitive. -/
-@[to_additive]
+transitive action of a monoid on `α` that is continuous in the second argument is point transitive.
+-/
+@[to_additive /-- If `α` is a nonempty Baire space with a second-countable topology, then any
+topologically transitive action of an additive monoid on `α` that is continuous in the second
+argument is point transitive. -/]
 theorem MulAction.isTopologicallyTransitive.isPointTransitive [Nonempty α] [BaireSpace α]
     [SecondCountableTopology α] [hc : ContinuousConstSMul M α] [IsTopologicallyTransitive M α] :
     IsPointTransitive M α := by
@@ -213,8 +217,8 @@ theorem MulAction.isTopologicallyTransitive.isPointTransitive [Nonempty α] [Bai
   · exact fun V ↦ fun hV ↦ isOpen_iUnion fun m ↦ by simp [(h₃.isOpen hV).preimage (hc.1 m)]
   · exact s.nonempty_iff_ne_empty.2 (ne_of_mem_of_not_mem hs h₂)
 
-/-- A point transitive group action is topologically transitive -/
-@[to_additive]
+/-- A point transitive action of a group is topologically transitive -/
+@[to_additive /-- A point transitive action of an additive group is topologically transitive -/]
 instance MulAction.isTopologicallyTransitive_of_isPointTransitive [h : IsPointTransitive G α] :
     IsTopologicallyTransitive G α := by
   refine ⟨match h.exists_dense_orbit with | ⟨x, hx⟩ => fun ho hne hVo hVne ↦ ?_⟩
