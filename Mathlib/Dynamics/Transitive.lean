@@ -221,4 +221,4 @@ instance MulAction.isTopologicallyTransitive_of_isPointTransitive [h : IsPointTr
   refine ⟨match h.exists_dense_orbit with | ⟨x, hx⟩ => fun ho hne hVo hVne ↦ ?_⟩
   simp only [dense_iff_inter_open, inter_nonempty, mem_smul_set, exists_exists_and_eq_and] at hx ⊢
   obtain ⟨⟨y, hy, a, ha⟩, ⟨_, _, b, hb⟩⟩ := And.intro (hx _ ho hne) (hx _ hVo hVne)
-  exact ⟨b • a⁻¹, y, ⟨hy, by simpa only [smul_eq_mul, ← ha, ← mul_smul, inv_mul_cancel_right, hb]⟩⟩
+  exact ⟨b • a⁻¹, y, ⟨hy, by simpa only [← ha, smul_assoc, inv_smul_smul, hb]⟩⟩
