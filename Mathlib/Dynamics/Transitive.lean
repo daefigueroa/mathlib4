@@ -74,9 +74,6 @@ theorem MulAction.isPointTransitive_iff_transitivePoints_nonempty :
     IsPointTransitive M α ↔ (transitivePoints M α).Nonempty :=
   ⟨fun ⟨x , hx⟩ ↦ ⟨x, hx⟩, fun ⟨x, hx⟩ ↦ ⟨x, hx⟩⟩
 
-theorem MulAction.isPointTransitive_of_mem_transitivePoints {x : α} (h : x ∈ transitivePoints M α) :
-    IsPointTransitive M α := (isPointTransitive_iff_transitivePoints_nonempty M).2 ⟨x, h⟩
-
 @[to_additive]
 theorem MulAction.preimage_smul_transitivePoints_subset (c : M) :
     (c • ·) ⁻¹' transitivePoints M α ⊆ transitivePoints M α := fun _ ↦ .mono (orbit_smul_subset ..)
@@ -91,7 +88,7 @@ theorem MulAction.mem_transitivePoints_of_isMinimal [IsMinimal M α] (x : α) :
 
 @[to_additive]
 theorem MulAction.isMinimal_iff_transitivePoints_eq : IsMinimal M α ↔ transitivePoints M α = univ :=
-  .trans ⟨fun _ ↦ dense_orbit M, fun h ↦ ⟨h⟩⟩ (eq_univ_iff_forall).symm
+  .trans ⟨fun _ ↦ dense_orbit M, fun h ↦ ⟨h⟩⟩ eq_univ_iff_forall.symm
 
 @[to_additive]
 theorem MulAction.smul_transitivePoints_eq (c : G) :
