@@ -75,11 +75,11 @@ theorem MulAction.isPointTransitive_iff_transitivePoints_nonempty :
   ⟨fun ⟨x , hx⟩ ↦ ⟨x, hx⟩, fun ⟨x, hx⟩ ↦ ⟨x, hx⟩⟩
 
 @[to_additive]
-theorem MulAction.preimage_smul_transitivePoints_subset (c : M) :
-    (c • ·) ⁻¹' transitivePoints M α ⊆ transitivePoints M α := fun _ ↦ .mono (orbit_smul_subset ..)
+theorem MulAction.preimage_smul_transitivePoints_subset (m : M) :
+    (m • ·) ⁻¹' transitivePoints M α ⊆ transitivePoints M α := fun _ ↦ .mono (orbit_smul_subset ..)
 
 @[to_additive]
-theorem MulAction.mem_transitivePoints_of_smul {c : M} {x : α} (h : c • x ∈ transitivePoints M α) :
+theorem MulAction.mem_transitivePoints_of_smul {m : M} {x : α} (h : m • x ∈ transitivePoints M α) :
     x ∈ transitivePoints M α := preimage_subset_iff.1 (preimage_smul_transitivePoints_subset ..) x h
 
 @[to_additive]
@@ -87,18 +87,19 @@ theorem MulAction.mem_transitivePoints_of_isMinimal [IsMinimal M α] (x : α) :
     x ∈ transitivePoints M α := dense_orbit M x
 
 @[to_additive]
-theorem MulAction.isMinimal_iff_transitivePoints_eq : IsMinimal M α ↔ transitivePoints M α = univ :=
+theorem MulAction.isMinimal_iff_transitivePoints_eq_univ :
+    IsMinimal M α ↔ transitivePoints M α = univ :=
   .trans ⟨fun _ ↦ dense_orbit M, fun h ↦ ⟨h⟩⟩ eq_univ_iff_forall.symm
 
 @[to_additive]
-theorem MulAction.smul_transitivePoints_eq (c : G) :
-    c • transitivePoints G α = transitivePoints G α := by
-  refine Set.ext fun x ↦ ⟨fun ⟨y, _, _⟩ ↦ by simp_all [transitivePoints, ← orbit_smul c y], ?_⟩
-  exact fun _ ↦ mem_smul_set.2 ⟨c⁻¹ • x, by simpa [transitivePoints]⟩
+theorem MulAction.smul_transitivePoints_eq (g : G) :
+    g • transitivePoints G α = transitivePoints G α := by
+  refine Set.ext fun x ↦ ⟨fun ⟨y, _, _⟩ ↦ by simp_all [transitivePoints, ← orbit_smul g y], ?_⟩
+  exact fun _ ↦ mem_smul_set.2 ⟨g⁻¹ • x, by simpa [transitivePoints]⟩
 
 @[to_additive]
 theorem MulAction.denseRange_smul_of_mem_transitivePoints {x : α} (hx : x ∈ transitivePoints M α) :
-    DenseRange fun c : M ↦ c • x := hx
+    DenseRange fun m : M ↦ m • x := hx
 
 @[to_additive]
 instance MulAction.isPointTransitive_of_isMinimal [IsMinimal M α] [h : Nonempty α] :
@@ -107,17 +108,17 @@ instance MulAction.isPointTransitive_of_isMinimal [IsMinimal M α] [h : Nonempty
 
 @[to_additive]
 theorem IsOpen.exists_smul_mem_of_mem_transitivePoints {x : α} (hx : x ∈ transitivePoints M α)
-    {U : Set α} (hUo : IsOpen U) (hUne : U.Nonempty) : ∃ c : M, c • x ∈ U :=
+    {U : Set α} (hUo : IsOpen U) (hUne : U.Nonempty) : ∃ m : M, m • x ∈ U :=
   (denseRange_smul_of_mem_transitivePoints M hx).exists_mem_open hUo hUne
 
 @[to_additive]
-theorem dense_of_smul_invariant {s : Set α} (hsmul : ∀ c : M, c • s ⊆ s)
+theorem dense_of_smul_invariant {s : Set α} (hsmul : ∀ m : M, m • s ⊆ s)
     (hs : (s ∩ transitivePoints M α).Nonempty) : Dense s :=
   hs.elim fun x h ↦ h.elim fun h₁ h₂ ↦ .mono (range_subset_iff.2 fun _ ↦ hsmul _ ⟨x, h₁, rfl⟩) h₂
 
 @[to_additive]
 theorem IsClosed.eq_univ_of_smul_invariant {s : Set α} (hc : IsClosed s)
-    (hsmul : ∀ c : M, c • s ⊆ s) (hs : (s ∩ transitivePoints M α).Nonempty) : s = univ :=
+    (hsmul : ∀ m : M, m • s ⊆ s) (hs : (s ∩ transitivePoints M α).Nonempty) : s = univ :=
   hc.closure_eq ▸ (dense_of_smul_invariant M hsmul hs).closure_eq
 
 end IsPointTransitive
@@ -202,16 +203,16 @@ transitive action of a monoid on `α` that is continuous in the second argument 
 @[to_additive /-- If `α` is a nonempty Baire space with a second-countable topology, then any
 topologically transitive action of an additive monoid on `α` that is continuous in the second
 argument is point transitive. -/]
-theorem MulAction.isTopologicallyTransitive.isPointTransitive [Nonempty α] [BaireSpace α]
+theorem MulAction.IsTopologicallyTransitive.isPointTransitive [Nonempty α] [BaireSpace α]
     [SecondCountableTopology α] [hc : ContinuousConstSMul M α] [IsTopologicallyTransitive M α] :
     IsPointTransitive M α := by
   refine ⟨match TopologicalSpace.exists_countable_basis α with | ⟨b, h₁, h₂, h₃⟩ => ?_⟩
   suffices hd : Dense (⋂ s ∈ b, ⋃ m, (m • ·) ⁻¹' s) by
     rcases Dense.nonempty (X := α) hd with ⟨y, hy⟩
-    simp [h₃.dense_iff, mem_iInter, inter_nonempty] at hy ⊢
+    simp only [mem_iInter, mem_iUnion, mem_preimage, h₃.dense_iff, inter_nonempty] at hy ⊢
     exact ⟨y, fun _ h _ ↦ match hy _ h with | ⟨z, hd⟩ => ⟨z • y, hd, mem_orbit y z⟩⟩
   refine dense_biInter_of_isOpen ?_ h₁ fun s hs ↦ (h₃.isOpen hs).dense_iUnion_preimage_smul M ?_
-  · exact fun V ↦ fun hV ↦ isOpen_iUnion fun m ↦ by simp [(h₃.isOpen hV).preimage (hc.1 m)]
+  · exact fun V ↦ fun hV ↦ isOpen_iUnion fun m ↦ by simp only [(h₃.isOpen hV).preimage (hc.1 m)]
   · exact s.nonempty_iff_ne_empty.2 (ne_of_mem_of_not_mem hs h₂)
 
 /-- A point transitive action of a group is topologically transitive -/
